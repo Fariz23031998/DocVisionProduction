@@ -1,0 +1,152 @@
+from typing import Optional
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi import status
+
+from src.billing.order_service import OrderService
+from src.billing.subscription_service import SubscriptionService
+from src.core.conf import ORDER_EXPIRATION_HOURS, PLANS_CONFIG, format_click_url
+from src.core.security import get_current_user
+from src.models.billing import OrderResponse, OrderCreate, Order, SubscriptionActivate, \
+    SubscriptionSummary
+from src.models.user import User
+
+router = APIRouter(prefix="/billing", tags=["Billings"])
+
+@router.get("/subscription", response_model=SubscriptionSummary)
+async def get_user_subscription(current_user: User = Depends(get_current_user)):
+    """Get current user's subscription details"""
+    plan_info = await SubscriptionService.get_plan_info(current_user.id)
+    return plan_info
+
+
+# Activate or extend subscription
+@router.post("/subscription/activate")
+async def activate_subscription(
+        data: SubscriptionActivate,
+        current_user: User = Depends(get_current_user)
+):
+    """
+    Activate or extend user's subscription
+    - Upgrades from free-trial to paid plan
+    - Extends existing subscription by adding months
+    - Upgrades between paid plans
+    """
+    subscription = await SubscriptionService.activate_subscription(
+        user_id=current_user.id,
+        plan=data.plan,
+        months=data.months
+    )
+
+    return {"ok": True, "message": "Subscription activated"}
+
+
+# Create order
+@router.post("/orders", response_model=OrderResponse)
+async def create_order(
+        order_data: OrderCreate,
+        current_user: User = Depends(get_current_user)
+):
+    """Create a new subscription order"""
+    if order_data.payment_provider == "click":
+        order = await OrderService.create_order(current_user.id, order_data)
+
+        payment_url = format_click_url(transaction_param=order.id, amount=order.amount)
+
+        return OrderResponse(
+            order=order,
+            message=f"Order created successfully. Please complete payment within {ORDER_EXPIRATION_HOURS} hours.",
+            payment_url=payment_url
+        )
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Payment provider not supported"
+        )
+
+
+# Get user's orders
+@router.get("/orders")
+async def get_orders(
+        order_status: Optional[str] = None,
+        current_user: User = Depends(get_current_user)
+):
+    """Get all orders for current user, optionally filtered by status"""
+    orders = await OrderService.get_user_orders(current_user.id, order_status)
+    return {"orders": orders}
+
+
+# Get specific order
+@router.get("/orders/{order_id}", response_model=Order)
+async def get_order(
+        order_id: str,
+        current_user: User = Depends(get_current_user)
+):
+    """Get specific order details"""
+    order = await OrderService.get_order(order_id)
+
+    if not order:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Order not found"
+        )
+
+    # Verify order belongs to user
+    if order.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied"
+        )
+
+    return order
+
+# Cancel order
+@router.post("/orders/{order_id}/cancel")
+async def cancel_order(
+        order_id: str,
+        current_user: User = Depends(get_current_user)
+):
+    """Cancel a pending order"""
+    order = await OrderService.get_order(order_id)
+
+    if not order:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Order not found"
+        )
+
+    # Verify order belongs to user
+    if order.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access denied"
+        )
+
+    order = await OrderService.cancel_order(order_id)
+
+    return {
+        "message": "Order cancelled successfully",
+        "order": order
+    }
+
+
+@router.post("/payments/webhook")
+async def payment_webhook(payload: dict):
+    provider = payload.get("provider")
+    order_id = payload.get("order_id")
+
+    # Verify signature or secret key (example for Click.uz / Stripe)
+    # verify_payment_signature(payload)
+
+    # Activate subscription
+    subscription = await SubscriptionService.activate_subscription_with_order(
+        order_id=order_id,
+        payment_data=payload
+    )
+
+    return {"ok": True, "subscription": subscription}
+
+# Get pricing information
+@router.get("/pricing")
+async def get_pricing():
+    """Get subscription pricing with discounts"""
+    return PLANS_CONFIG

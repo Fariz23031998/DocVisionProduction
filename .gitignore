@@ -1,0 +1,14 @@
+/venv/
+/.venv/
+/.idea/
+/src/uploads/
+/logs/
+/.git/
+__pycache__/
+logs/
+*.pyc
+*.json
+*.spec
+*.bin
+*.db
+.env
