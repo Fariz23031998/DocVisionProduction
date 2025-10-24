@@ -80,7 +80,7 @@ def verify_password(stored_password: str, input_password: str) -> bool:
     input_hash = hashlib.pbkdf2_hmac('sha256', input_password.encode(), salt.encode(), 100000).hex()
     return hashed == input_hash
 
-def load_template_from_txt(template_file="email_verification_template_en.txt"):
+def load_template_from_txt(template_file="email_verification_template.txt"):
     """Load template from text file"""
     default_template = """
 <html>

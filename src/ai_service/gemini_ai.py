@@ -5,10 +5,11 @@ import os
 import google.generativeai as genai
 from PIL import Image
 from fastapi import HTTPException
+from google.api_core.exceptions import GoogleAPIError
 from starlette.status import HTTP_400_BAD_REQUEST
 
 from src.core.conf import GEMINI_API_KEY
-from src.ai_service.prompt import create_gemini_prompt
+from src.ai_service.prompt import create_gemini_prompt, AI_PROMPT_EXCEL_COLUMN_MAPPING
 
 logger = logging.getLogger("DocVision")
 
@@ -89,6 +90,55 @@ async def extract_data(file_path: str) -> dict:
             status_code=HTTP_400_BAD_REQUEST,
             detail=err_msg
         )
+
+async def detect_excel_columns_gemini(
+    excel_text: str,
+    prompt: str = AI_PROMPT_EXCEL_COLUMN_MAPPING,
+    model: str = "gemini-2.5-flash"
+) -> dict:
+    """
+    Uses Gemini 2.5 Flash to detect and map Excel columns from given text data.
+
+    Args:
+        prompt (str): Instruction text for the model.
+        excel_text (str): Top rows of Excel formatted as plain text.
+        model (str): Gemini model name (default: gemini-2.5-flash).
+
+    Returns:
+        dict: Parsed JSON result with columns, irrelevant_columns, irrelevant_rows.
+    """
+
+    user_prompt = f"{prompt}\n\nHere are the top rows from the Excel file:\n\n{excel_text}"
+
+    try:
+        model_instance = genai.GenerativeModel(model)
+        response = await asyncio.to_thread(
+            model_instance.generate_content,
+            user_prompt,
+            generation_config=genai.types.GenerationConfig(
+                temperature=0,
+                response_mime_type="application/json"
+            )
+        )
+
+        # Extract text result
+        result_text = response.text.strip() if response.text else ""
+
+        try:
+            result = json.loads(result_text)
+            return {"ok": True, "result": result}
+
+        except json.JSONDecodeError:
+            logger.warning("⚠️ Warning: Gemini returned invalid JSON, returning raw text.")
+            return {"ok": False, "error": result_text}
+
+    except GoogleAPIError as e:
+        logger.error(f"❌ Gemini API error: {e}")
+        return {"ok": False, "error": str(e)}
+
+    except Exception as e:
+        logger.error(f"❌ Unexpected error: {e}")
+        return {"ok": False, "error": str(e)}
 
 
 def _extract_from_image(image_path: str, prompt: str) -> str:

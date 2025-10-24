@@ -239,8 +239,8 @@ Important detection rules:
 - Never skip or mark "Номенклатура" as irrelevant — it should always be included in "columns" with the key "name".
 - If both "Код" and "Номенклатура" exist, "Код" is usually an internal ID, while "Номенклатура" is the actual product name.
 - Always try to detect and map "Группа", "Группа товаров", "Категория", "Group", or "Category" columns to the key "group_path".
-This column represents the full category path of the product (e.g., “Еда/Фрукты/Бананы”).
-If found, it should be included in "columns" with the key "group_path", not marked as irrelevant.
+    This column represents the full category path of the product (e.g., “Еда/Фрукты/Бананы”).
+    If found, it should be included in "columns" with the key "group_path", not marked as irrelevant.
 
   {
     "name": 3,

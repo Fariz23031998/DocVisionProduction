@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status
 
-from src.ai_service.gemini_ai import extract_data
+from src.ai_service.gemini_ai import extract_data, detect_excel_columns_gemini
 from src.ai_service.open_ai import convert_file_to_json_async, detect_excel_columns
 from src.billing.subscription_service import SubscriptionService
 from src.core.conf import ALLOWED_EXTENSIONS, MAX_FILE_SIZE
@@ -62,7 +62,8 @@ async def detect_column_names(data: DetectColumnName, current_user: User = Depen
     await SubscriptionService.save_ai_usage_operation(user_id=user_id)
 
     top_rows = data.top_rows
-    result = await detect_excel_columns(excel_text=top_rows)
+    # result = await detect_excel_columns(excel_text=top_rows)
+    result = await detect_excel_columns_gemini(excel_text=top_rows)
     if not result.get("ok"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
