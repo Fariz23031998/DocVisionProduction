@@ -16,7 +16,8 @@ logger = logging.getLogger("DocVision")
 # Set Resend API key
 resend.api_key = RESEND_API_KEY
 
-html_template = load_template_from_txt()
+HTML_TEMPLATE = load_template_from_txt()
+VERIFICATION_EMAIL = F"no-reply@{RESEND_EMAIL_FROM}"
 
 async def add_code_into_db(recipient: str):
     async with DatabaseConnection() as db:
@@ -48,13 +49,13 @@ async def send_verification_code(recipient_email: str, code: str):
     for i in range(5):
         try:
             html_body = format_message_from_template(
-                template_content=html_template,
+                template_content=HTML_TEMPLATE,
                 verification_code=code,
                 app_name=APP_NAME
             )
 
             params: resend.Emails.SendParams = {
-                "from": f"no-reply@{RESEND_EMAIL_FROM}",  # e.g., "onboarding@yourdomain.com"
+                "from": VERIFICATION_EMAIL,  # e.g., "onboarding@yourdomain.com"
                 "to": [recipient_email],
                 "subject": f"{APP_NAME} - Verification Code",
                 "html": html_body,

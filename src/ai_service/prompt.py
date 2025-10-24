@@ -17,7 +17,7 @@ prompt_common_rules = """
 - Never separate or normalize the package size — keep it exactly as it appears in the name.
 - If no products are found, return exactly ###false### as a string.
 - If products are found, output only valid JSON (no extra text, no ```json code fences).
-- Do not stop early or summarize. Output must contain exactly the same number of rows as the source table.
+- Return all rows, even if some fields are uncertain. Do not skip low-confidence entries.
 """
 
 image_example = """

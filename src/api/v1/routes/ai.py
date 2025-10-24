@@ -51,7 +51,10 @@ async def invoice_file_upload(
     # Run extraction logic
     result = await extract_data(file_path=file_path)
     if not result.get("ok"):
-        raise HTTPException(400, result.get("message", "File conversion failed"))
+        raise HTTPException(
+            status_code=400,
+            detail=result.get("message", "File conversion failed")
+        )
 
     return result
 

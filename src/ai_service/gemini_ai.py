@@ -73,6 +73,7 @@ async def extract_data(file_path: str) -> dict:
         result = result.replace("```", "")
         try:
             json_data = json.loads(result)
+            logger.info(f"AI extracted {len(json_data)} from {file_path}")
         except Exception as e:
             err_msg = f"Failed to parse json data: {e}"
             logger.error(err_msg)
