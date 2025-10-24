@@ -25,14 +25,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth.router, prefix="/v1")
-app.include_router(users.router, prefix="/v1")
-app.include_router(tokens.router, prefix="/v1")
-app.include_router(billing.router, prefix="/v1")
-app.include_router(regos_proxy.router, prefix="/v1")
-app.include_router(ai.router, prefix="/v1")
-app.include_router(system.router, prefix="/v1")
-app.include_router(click.router, prefix="")
+# Production
+# app.include_router(auth.router, prefix="/v1")
+# app.include_router(users.router, prefix="/v1")
+# app.include_router(tokens.router, prefix="/v1")
+# app.include_router(billing.router, prefix="/v1")
+# app.include_router(regos_proxy.router, prefix="/v1")
+# app.include_router(ai.router, prefix="/v1")
+# app.include_router(system.router, prefix="/v1")
+# app.include_router(click.router, prefix="")
+
+# Development
+app.include_router(auth.router, prefix="/api/v1")
+app.include_router(users.router, prefix="/api/v1")
+app.include_router(tokens.router, prefix="/api/v1")
+app.include_router(billing.router, prefix="/api/v1")
+app.include_router(regos_proxy.router, prefix="/api/v1")
+app.include_router(ai.router, prefix="/api/v1")
+app.include_router(system.router, prefix="/api/v1")
+app.include_router(click.router, prefix="/api")
 
 
 if __name__ == "__main__":

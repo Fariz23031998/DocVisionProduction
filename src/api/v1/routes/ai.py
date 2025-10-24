@@ -1,4 +1,3 @@
-import shutil
 from datetime import datetime
 from pathlib import Path
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status
@@ -10,51 +9,50 @@ from src.core.conf import ALLOWED_EXTENSIONS, MAX_FILE_SIZE
 from src.core.security import get_current_user
 from src.models.ai import ExcelColumnDetectionResponse, DetectColumnName
 from src.models.user import User
+from src.utils.helper import compress_file
 
 router = APIRouter(prefix="/ai", tags=["AI"])
 
 @router.post("/invoice-file-upload")
-async def invoice_file_upload(current_user: User = Depends(get_current_user), file: UploadFile = File(...)):
-    # Check file extension
-    user_id = current_user.id
-
+async def invoice_file_upload(
+    current_user: User = Depends(get_current_user),
+    file: UploadFile = File(...)
+):
     file_extension = Path(file.filename).suffix.lower()
+
     if file_extension not in ALLOWED_EXTENSIONS:
-        raise HTTPException(
-            status_code=400,
-            detail=f"File type not allowed. Allowed types: {ALLOWED_EXTENSIONS}"
-        )
+        raise HTTPException(400, f"File type not allowed. Allowed: {ALLOWED_EXTENSIONS}")
 
-    # Check file size
-    if file.size > MAX_FILE_SIZE:
-        raise HTTPException(
-            status_code=400,
-            detail=f"File too large. Maximum size: {MAX_FILE_SIZE} bytes"
-        )
+    # Read the file content
+    content = await file.read()
+    file_size = len(content)
 
-    # check ai_processing
-    await SubscriptionService.save_ai_usage_operation(user_id=user_id)
+    # Compress if too large
+    if file_size > MAX_FILE_SIZE:
+        content = await compress_file(content, file_extension)
+        compressed_size = len(content)
+        if compressed_size > MAX_FILE_SIZE:
+            raise HTTPException(400, f"File too large even after compression (>{MAX_FILE_SIZE} bytes)")
 
-    # Generate custom filename with timestamp
+    # Generate filename
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     custom_filename = f"upload_{timestamp}{file_extension}"
-
-    # Save file
     file_path = f"uploads/{custom_filename}"
     Path("uploads").mkdir(exist_ok=True)
 
+    # Save file
     with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+        buffer.write(content)
 
-    # result = await convert_file_to_json_async(file_path=file_path)
+    user_id = current_user.id
+    # check ai_processing
+    await SubscriptionService.save_ai_usage_operation(user_id=user_id)
+
+    # Run extraction logic
     result = await extract_data(file_path=file_path)
     if not result.get("ok"):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=result.get("message", "File conversion failed")
-        )
+        raise HTTPException(400, result.get("message", "File conversion failed"))
 
-    # Add usage info to response
     return result
 
 @router.post("/detect-column-names", response_model=ExcelColumnDetectionResponse)

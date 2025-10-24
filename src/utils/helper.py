@@ -7,7 +7,9 @@ import re
 from pathlib import Path
 from string import Template
 from typing import Optional
-
+from PIL import Image
+import fitz
+from io import BytesIO
 from cryptography.fernet import Fernet
 import logging
 
@@ -78,28 +80,32 @@ def verify_password(stored_password: str, input_password: str) -> bool:
     input_hash = hashlib.pbkdf2_hmac('sha256', input_password.encode(), salt.encode(), 100000).hex()
     return hashed == input_hash
 
-def load_template_from_txt(template_file="email_verification_template.txt"):
+def load_template_from_txt(template_file="email_verification_template_en.txt"):
     """Load template from text file"""
     default_template = """
 <html>
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
     <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
         <h2 style="color: #4CAF50;">Email Verification</h2>
-        <p>Hello,</p>
-        <p>Thank you for signing up with ${app_name}. Please use the verification code below to complete your registration:</p>
+        <p>Salom,</p>
+        <p>
+            ${app_name} bilan ro'yxatdan o'tganingiz uchun tashakkur. 
+            Ro'yxatdan o'tishni yakunlash uchun quyidagi tasdiqlash 
+            kodidan foydalaning:
+        </p>
 
         <div style="background-color: #f4f4f4; padding: 20px; text-align: center; margin: 20px 0; border-radius: 5px;">
             <h1 style="color: #4CAF50; font-size: 32px; margin: 0; letter-spacing: 5px;">${verification_code}</h1>
         </div>
 
-        <p><strong>Important:</strong></p>
+        <p><strong>Muhim:</strong></p>
         <ul>
-            <li>This code will expire in 10 minutes</li>
-            <li>Do not share this code with anyone</li>
-            <li>If you didn't request this, please ignore this email</li>
+            <li>Ushbu kod 10 daqiqadan so'ng amal qilish muddati tugaydi</li>
+            <li>Bu kodni hech kim bilan ulashmang</li>
+            <li>Agar tasdiqlash kodi so'ramagan bo'lsangiz, iltimos, ushbu elektron pochta xabarini e'tiborsiz qoldiring</li>
         </ul>
 
-        <p>Best regards,<br>${app_name} Team</p>
+        <p>Hurmat bilan,<br>${app_name} jamoasi</p>
     </div>
 </body>
 </html>"""
@@ -285,4 +291,21 @@ def parse_json_strict(response: str) -> dict:
     return result
 
 
+async def compress_file(content: bytes, extension: str) -> bytes:
+    """Compress PDF or image file to reduce size."""
+    if extension in [".jpg", ".jpeg", ".png"]:
+        image = Image.open(BytesIO(content))
+        buffer = BytesIO()
+        # Save with lower quality and optimized
+        image.save(buffer, format=image.format, optimize=True, quality=70)
+        return buffer.getvalue()
 
+    elif extension == ".pdf":
+        pdf = fitz.open(stream=content, filetype="pdf")
+        buffer = BytesIO()
+        pdf.save(buffer, deflate=True, garbage=4)
+        pdf.close()
+        return buffer.getvalue()
+
+    # Default: return unchanged
+    return content

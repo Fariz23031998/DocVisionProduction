@@ -100,7 +100,7 @@ class DatabaseConnection:
                       plan TEXT NOT NULL CHECK(plan IN ('standard', 'pro')),
                       months INTEGER NOT NULL CHECK(months >= 1 AND months <= 24),
                       amount REAL NOT NULL,
-                      currency TEXT DEFAULT 'USD',
+                      currency TEXT DEFAULT 'UZS',
                       status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'paid', 'failed', 'cancelled', 'expired')),
                       payment_provider TEXT,
                       payment_transaction_id TEXT,
@@ -111,6 +111,21 @@ class DatabaseConnection:
                       FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
                   )
               """)
+
+            # Create payments table
+            await db.execute("""
+                CREATE TABLE IF NOT EXISTS payments (
+                    id INT PRIMARY KEY,
+                    amount REAL NOT NULL,
+                    provider TEXT NOT NULL,
+                    user_id TEXT NOT NULL,
+                    subscription_id TEXT NOT NULL,
+                    is_cancelled BOOLEAN DEFAULT FALSE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+                    FOREIGN KEY (subscription_id) REFERENCES subscriptions (id) ON DELETE CASCADE
+                )
+            """)
 
             # Create ai_usage_operations
             await db.execute("""

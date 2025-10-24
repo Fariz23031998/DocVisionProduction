@@ -22,11 +22,12 @@ BREVO_SENDER_EMAIL = os.getenv("BREVO_SENDER_EMAIL")
 BREVO_SENDER_NAME = os.getenv("BREVO_SENDER_NAME")
 BREVO_BASE_URL = os.getenv("BREVO_BASE_URL")
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
+RESEND_EMAIL_FROM = os.getenv("RESEND_EMAIL_FROM")
 CLICK_MERCHANT_ID = os.getenv("CLICK_MERCHANT_ID")
 CLICK_SERVICE_ID = os.getenv("CLICK_SERVICE_ID")
 CLICK_MERCHANT_USER_ID = os.getenv("CLICK_MERCHANT_USER_ID")
 CLICK_SECRET_KEY = os.getenv("CLICK_SECRET_KEY")
-ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".pdf", ".xls", ".xlsx"}
+ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.heic', '.heif', ".pdf"}
 
 MAX_FILE_SIZE = 5 * 1024 * 1024
 # Order expiration (unpaid orders expire after this time)

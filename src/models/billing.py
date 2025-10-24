@@ -108,3 +108,20 @@ class SubscriptionSummary(BaseModel):
     last_monthly_regen: datetime
     last_daily_regen: Optional[datetime] = None
     price: int
+
+class PaymentCreateRequest(BaseModel):
+    amount: float
+    provider: str
+    user_id: str
+    subscription_id: str
+
+class PaymentGetResponse(BaseModel):
+    id: int
+    amount: float
+    provider: str
+    user_id: str
+    subscription_id: str
+    is_canceled: bool
+    created_at: datetime
+
+

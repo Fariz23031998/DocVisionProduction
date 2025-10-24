@@ -1,0 +1,27 @@
+
+<html>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #4CAF50;">Email Verification</h2>
+        <p>Salom,</p>
+        <p>
+            ${app_name} bilan ro'yxatdan o'tganingiz uchun tashakkur. 
+            Ro'yxatdan o'tishni yakunlash uchun quyidagi tasdiqlash 
+            kodidan foydalaning:
+        </p>
+
+        <div style="background-color: #f4f4f4; padding: 20px; text-align: center; margin: 20px 0; border-radius: 5px;">
+            <h1 style="color: #4CAF50; font-size: 32px; margin: 0; letter-spacing: 5px;">${verification_code}</h1>
+        </div>
+
+        <p><strong>Muhim:</strong></p>
+        <ul>
+            <li>Ushbu kod 10 daqiqadan so'ng amal qilish muddati tugaydi</li>
+            <li>Bu kodni hech kim bilan ulashmang</li>
+            <li>Agar tasdiqlash kodi so'ramagan bo'lsangiz, iltimos, ushbu elektron pochta xabarini e'tiborsiz qoldiring</li>
+        </ul>
+
+        <p>Hurmat bilan,<br>${app_name} jamoasi</p>
+    </div>
+</body>
+</html>

@@ -4,7 +4,7 @@ import json
 from typing import Optional, List
 from fastapi import HTTPException, status
 from src.core.db import DatabaseConnection
-from src.core.conf import PRICING, ORDER_EXPIRATION_HOURS, format_click_url
+from src.core.conf import PRICING, ORDER_EXPIRATION_HOURS
 from src.models.billing import OrderCreate, Order
 
 

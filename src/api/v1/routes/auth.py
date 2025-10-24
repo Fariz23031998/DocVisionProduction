@@ -8,7 +8,7 @@ from src.core.db import DatabaseConnection
 from src.core.security import get_current_user, get_session_id_from_token
 from src.billing.subscription_service import SubscriptionService
 from src.models.user import TokenResponse, UserCreate, UserLogin, User, ResetPassword, ChangePassword, VerificationData
-from src.verify_service.async_smtp_verify_service import check_verification_code, send_verification_code, \
+from src.verify_service.resend_verify_service import check_verification_code, send_verification_code, \
     add_code_into_db
 
 router = APIRouter(prefix="/auth", tags=["Auth"])

@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, HTTPException
 
 from src.billing.order_service import OrderService
+from src.billing.payment_service import PaymentService
 from src.core.conf import CLICK_SECRET_KEY
+from src.models.billing import PaymentCreateRequest
 from src.utils.helper import click_generate_sign_string
 
 router = APIRouter(prefix="/click", tags=["click"])
@@ -60,8 +62,21 @@ async def click_complete(request: Request):
     if not order_data and order_data.status != "pending":
         return {"error": -5, "error_note": "Order not found"}
 
-    if float(payload["amount"]) != float(order_data["amount"]):
+    if float(payload["amount"]) != float(order_data.amount):
         return {"error": -2, "error_note": "Incorrect amount"}
+
+    # Add payment to the db
+    payment_result = await PaymentService.create_payment(
+        PaymentCreateRequest(
+            amount=order_data["amount"],
+            provider='click',
+            user_id=order_data.user_id,
+            subscription_id=order_data.subscription_id
+        )
+    )
+
+    if not payment_result:
+        raise HTTPException(status_code=500, detail="Payment creation failed")
 
     # 2️⃣ Update order status
     await OrderService.mark_order_paid(
@@ -69,7 +84,6 @@ async def click_complete(request: Request):
         transaction_id=payload["click_trans_id"],
         payment_provider='click',
         amount=order_data["amount"],
-
     )
 
     # 3️⃣ Respond success

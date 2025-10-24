@@ -19,7 +19,7 @@ conf = ConnectionConfig(
     VALIDATE_CERTS=True
 )
 
-html_template = load_template_from_txt("email_verification_template.txt")
+html_template = load_template_from_txt("email_verification_template_en.txt")
 
 
 async def send_verification_code(recipient_email: str, background_task: BackgroundTask):
