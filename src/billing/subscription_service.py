@@ -267,7 +267,7 @@ class SubscriptionService:
                 logger.error(f"[Scheduler ERROR] Subscription regeneration failed: {e}")
 
     @staticmethod
-    async def save_ai_usage_operation(user_id: str, amount: int = 1) -> None:
+    async def save_ai_usage_operation(user_id: str, amount: int = 1) -> dict:
         """
         Records an AI usage operation and deducts from subscription balance atomically.
         Args:
@@ -286,26 +286,23 @@ class SubscriptionService:
                 if not sub_row:
                     err_msg = f"[AIUsage] Subscription not found for user id: {user_id}"
                     logger.error(err_msg)
-                    raise HTTPException(status_code=404, detail=err_msg)
+                    return {"ok": False, "message": err_msg, "code": 404}
 
                 subscription_status = sub_row["status"]
                 sub_id = sub_row["id"]
                 if subscription_status != "active":
                     err_msg = "Subscription is not active"
                     logger.info(err_msg)
-                    raise HTTPException(
-                        status_code=status.HTTP_403_FORBIDDEN,
-                        detail=err_msg
-                    )
+                    return {"ok": False, "message": err_msg, "code": 401}
+
 
                 balance = sub_row["ai_processing"]
                 if balance < amount:
                     err_msg = f"[AIUsage] Insufficient AI balance for sub {sub_id}: {balance} < {amount}"
                     logger.warning(err_msg)
-                    raise HTTPException(
-                        status_code=status.HTTP_403_FORBIDDEN,
-                        detail=err_msg
-                    )
+                    return {"ok": False,
+                            "message": "Insufficient AI credit. Please renew your subscriptions or add more credit.",
+                            "code": 403}
 
                 # Perform insert and update as a single transaction
                 await db.execute_one(
@@ -321,17 +318,16 @@ class SubscriptionService:
                 )
 
                 await db.connection.commit()
-                logger.info(f"[AIUsage] Deducted {amount} credits from {sub_id} successfully")
+                msg = f"[AIUsage] Deducted {amount} credits from {sub_id} successfully"
+                logger.info(msg)
+                return {"ok": True, "message": msg, "code": 403}
 
             except Exception as e:
                 if hasattr(db, "connection") and db.connection:
                     await db.connection.rollback()
                 err_msg = f"[AIUsage ERROR] Failed to save usage for {sub_id}: {e}"
                 logger.error(err_msg)
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail=err_msg
-                )
+                return {"ok": False, "message": err_msg, "code": 500}
 
     @staticmethod
     async def activate_subscription(user_id: str, plan: str, months: int) -> Subscription:

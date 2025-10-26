@@ -292,20 +292,26 @@ def parse_json_strict(response: str) -> dict:
 
 
 async def compress_file(content: bytes, extension: str) -> bytes:
-    """Compress PDF or image file to reduce size."""
-    if extension in [".jpg", ".jpeg", ".png"]:
-        image = Image.open(BytesIO(content))
-        buffer = BytesIO()
-        # Save with lower quality and optimized
-        image.save(buffer, format=image.format, optimize=True, quality=70)
-        return buffer.getvalue()
+    """Compress file content"""
+    try:
+        if extension in ['.jpg', '.jpeg', '.png']:
+            # Image compression
+            from PIL import Image
+            import io
 
-    elif extension == ".pdf":
-        pdf = fitz.open(stream=content, filetype="pdf")
-        buffer = BytesIO()
-        pdf.save(buffer, deflate=True, garbage=4)
-        pdf.close()
-        return buffer.getvalue()
+            img = Image.open(io.BytesIO(content))
+            output = io.BytesIO()
+            img.save(output, format=img.format, quality=85, optimize=True)
+            return output.getvalue()
 
-    # Default: return unchanged
-    return content
+        elif extension == '.pdf':
+            # PDF compression (if needed)
+            return content  # Or use PyPDF2 compression
+
+        else:
+            # No compression for other types
+            return content
+
+    except Exception as e:
+        logger.info(f"Compression error: {e}")
+        return content  # Return original if compression fails
