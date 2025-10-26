@@ -6,7 +6,7 @@ prompt_common_rules = """
 - Map product details to the following keys: name, unit_name, quantity, cost, barcodes, code and group_path.
 - Barcode values can be found in the columns labeled "штрихкод" or "barcode", you should return it as string.
 - If a value does not correspond to any of these keys, use the column name as the key.
-- If the receipt does not include column names, assign appropriate keys yourself.
+- If the receipt/invoice does not include column names, assign appropriate keys yourself.
 - Support multiple languages, including Russian, Uzbek, English, Chinese, and others.
 - Convert all numbers to numeric form (e.g., 546,52 → 546.52).
 - Ignore totals, discounts, headers, and footers.
@@ -259,6 +259,7 @@ Return only JSON data containing:
 
 Column names to choose from:
 name — Short product name or title. (Наименование, Номенклатура, Товар, Продукт)
+code - Product's code in database (Код, Код номенклатуры)
 fullname — Full or extended product name with details. (Полное наименование)
 articul — Article number or internal product code. (Артикул, Код номенклатуры)
 group_path — Full group/category path (e.g., 'Food/Beverages'). (Группа (структура/путь))
@@ -300,8 +301,142 @@ Notes for the AI:
 - To help you understand the table structure more accurately, each Excel row is wrapped between <ROW_START> and <ROW_END> tags, and every cell inside a row is enclosed in <CELL> and </CELL> tags. This ensures you can clearly detect where each row and cell begins and ends, even if some cell values contain spaces, commas, or line breaks.
 """
 
-def create_gemini_prompt(prompt_type: str = "img"):
-    header = prompt_header_pdf if prompt_type == "pdf" else prompt_header_image
-    return f"""{header}{prompt_common_rules}"""
+AI_PROMPT_PDF_COLUMN_MAPPING = """
+You are an AI model that extracts structured, table-like data from PDF files.
+We send you only a subset of rows from the PDF (usually the first few and last few) as Python-style tuples, representing partial table content for column detection.
+
+Your goal is to:
+1. Detect and assign column names based on the provided tuple data.
+2. Identify irrelevant columns and rows that don’t represent product data.
+
+Column names in the PDF file may appear in Russian or English.
+
+Important detection rules:
+- Always map "Номенклатура" (and any similar column like "Товар", "Наименование", "Product", "Item") to the key "name".
+- The "name" column is the main product title and must always be included if it exists.
+- Treat the “price” column/value as cost, since the products are sold to us.
+- If both "Код" and "Номенклатура" exist, "Код" is usually an internal ID, while "Номенклатура" is the actual product name.
+- Always try to map "Группа", "Группа товаров", "Категория", "Group", or "Category" to "group_path" (e.g., “Еда/Фрукты/Бананы”).
+- If a row contains header-like text (e.g., “Наименование”, “Артикул”, “Ед. изм.”, “Кол-во”), mark it as a header row and include its index in "irrelevant_rows".
+- If the rows are at the bottom, use negative indexing (for example, -1, -2).
+
+Column names to choose from:
+name — Short product name or title (Наименование, Номенклатура, Товар, Продукт)
+code - Product's code in database (Код, Код номенклатуры)
+fullname — Extended product name (Полное наименование)
+articul — Article number or internal code (Артикул)
+group_path — Category path (Группа, Категория)
+barcodes — Barcodes (Штрихкод)
+color_name — Color (Цвет)
+brand_name — Brand (Бренд)
+producer_name — Manufacturer (Производитель)
+size_name — Size/dimension (Размер)
+unit_name — Unit (Ед. изм.)
+department_name — Department (Отдел)
+description — Description (Описание)
+vat_name — VAT rate (Ставка НДС)
+icps — Classification code (ИКПУ)
+labeled — Labeling requirement (Метка обязательной маркировки)
+package_code — Packaging code (Код упаковки)
+parent_code — Parent code (Код родителя)
+quantity — Quantity (Кол-во, Количество)
+cost — Cost or purchase price (Себестоимость, Закупочная цена)
+price — Selling price (Цена)
+
+Output format (JSON only):
+{
+  "columns": {
+    "name": 1,
+    "barcodes": 2,
+    "quantity": 4,
+    "cost": 9
+  },
+  "irrelevant_columns": [3, 5, 7, 8],
+  "irrelevant_rows": [1, 2, 3, 4, 5, 6, 7]
+}
+
+Notes:
+- Column indexes start from 0.
+- Ignore decorative headers, totals, VAT summaries, or empty rows.
+- Focus on columns that describe product data.
+- If no relevant columns are found, return exactly ###false### as a string.
+- Return only valid JSON — no explanations, text, or code fences.
+"""
+
+
+AI_PROMPT_PDF_UNSTRUCTURED_EXTRACTION = """
+You are an AI model that extracts structured product data from unformatted or irregularly structured PDF text.
+
+You will receive the entire textual content of a PDF document (for example: a scanned receipt, invoice, or purchase report)
+that may contain a mix of product lines, totals, headers, and footers.
+
+Your task:
+Parse all text and return structured JSON data representing product items with relevant attributes.
+
+---
+
+### Mapping Rules
+- Map product details to the following keys:
+  - **name** — product name or title (e.g., "TESKO 1л", "Pepsi 0.5L", "Сахар 25 кг").
+  - **unit_name** — unit of measurement if explicitly given (e.g., "шт", "кг", "л", "pcs", "pack").
+  - **quantity** — number of items or units purchased (numeric only).
+  - **cost** — unit price or purchase cost.
+  - **barcodes** — product barcode(s), if visible (return as string, not list).
+  - **code** — internal or vendor product code, if present.
+  - **group_path** — product category path or group (if recognizable, e.g., “Еда/Фрукты/Бананы”).
+
+---
+
+### Important Interpretation Rules
+- **Unstructured layout tolerance:** text may not follow tabular alignment — detect logical groupings across multiple lines if needed.
+- **Multilingual text:** support Russian, Uzbek, English, and other languages simultaneously.
+- **Numeric normalization:** convert numeric values like `546,52` → `546.52`, and remove spaces inside numbers.
+- **Totals & metadata:** ignore totals, headers, discounts, cashier info, and footers (e.g., “ИТОГ”, “ВСЕГО”, “СПАСИБО ЗА ПОКУПКУ”).
+- **Name handling:** if a product name includes package size (e.g., “500 мл”, “2 L”, “25 шт”, “100 гр”), keep it as part of the **name** field.
+  - Do **not** use such values as `unit_name`.
+  - Use `unit_name` only if an explicit unit or measurement term is present (like “шт”, “kg”, “pcs”, etc.).
+- **Data completeness:** include all detected items, even if some fields (like cost or barcode) are uncertain or missing.
+- **Currency symbols:** remove them (e.g., “₽”, “сум”, “$”, “€”).
+- **Precision:** numeric fields (quantity, cost) must be numbers, not strings.
+- Treat the **price** column/value as cost, since the products are sold to the user.
+
+---
+
+### Output Requirements
+- Output **only valid JSON** (no text explanations, no markdown, no code fences).
+- Return a JSON array of product objects, e.g.:
+
+[
+    {
+        "name": "Картошка Россия",
+        "unit_name": "кг"
+        "quantity": 1.345,
+        "cost": 12000,
+        "total_cost": 16140,
+        "НДС": "12%" 
+    },
+    {
+        "name": "Бонаква 0,5л",
+        "unit_name": "шт"
+        "quantity": 3,
+        "cost": 8000,
+        "total_cost": 24000,
+        "НДС": "12%" 
+    }
+]
+
+- If **no products** are detected, return exactly:
+  ###false###
+
+---
+
+### Additional Hints for the Model
+- When multiple numeric values appear on a line (e.g., “3 * 2 000 = 6 000”), treat:
+  - The smaller number before "=" as **cost**
+  - The leftmost number as **quantity**
+  - The number after "=" as total, not required in output
+- Be consistent in field naming and output schema.
+- Do not summarize or explain — output only JSON.
+"""
 
 

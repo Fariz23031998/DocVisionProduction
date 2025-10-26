@@ -8,8 +8,12 @@ from fastapi import HTTPException
 from google.api_core.exceptions import GoogleAPIError
 from starlette.status import HTTP_400_BAD_REQUEST
 
+from src.ai_service.ai_helper import extract_text_from_pdf
 from src.core.conf import GEMINI_API_KEY
-from src.ai_service.prompt import create_gemini_prompt, AI_PROMPT_EXCEL_COLUMN_MAPPING
+from src.ai_service.prompt import AI_PROMPT_EXCEL_COLUMN_MAPPING, prompt_common_rules, \
+    AI_PROMPT_PDF_COLUMN_MAPPING, AI_PROMPT_PDF_UNSTRUCTURED_EXTRACTION, prompt_header_image
+from src.utils.helper import write_json_file
+from src.utils.pdf_extractor import extract_pdf_tables_to_tuples, parse_string_to_list, map_ai_response_to_dicts
 
 logger = logging.getLogger("DocVision")
 
@@ -48,10 +52,9 @@ async def extract_data(file_path: str) -> dict:
     try:
         if ext == '.pdf':
             # Process PDF
-            prompt = create_gemini_prompt(prompt_type="pdf")
-            result = await asyncio.to_thread(_extract_from_pdf, file_path, prompt)
+            result = await asyncio.to_thread(_extract_from_pdf, file_path)
         elif ext in image_formats:
-            prompt = create_gemini_prompt(prompt_type="img")
+            prompt = f"{prompt_header_image}{prompt_common_rules}"
             # Process Image
             result = await asyncio.to_thread(_extract_from_image, file_path, prompt)
         else:
@@ -62,27 +65,15 @@ async def extract_data(file_path: str) -> dict:
                 detail=err_msg
             )
 
-        if result == "###false###":
-            err_msg = "Ai model couldn't process image data."
+        if not result:
+            err_msg = "Ai model couldn't process data."
             logger.error(err_msg)
             raise HTTPException(
                 status_code=HTTP_400_BAD_REQUEST,
                 detail=err_msg
             )
-        result = result.replace("```json", "")
-        result = result.replace("```", "")
-        try:
-            json_data = json.loads(result)
-            logger.info(f"AI extracted {len(json_data)} from {file_path}")
-        except Exception as e:
-            err_msg = f"Failed to parse json data: {e}"
-            logger.error(err_msg)
-            raise HTTPException(
-                status_code=HTTP_400_BAD_REQUEST,
-                detail=err_msg
-            )
-        else:
-            return {"ok": True, "message": "success", "data": json_data}
+
+        return {"ok": True, "message": "success", "data": result}
 
     except Exception as e:
         err_msg = f"Error processing file {file_path}: {str(e)}"
@@ -95,7 +86,7 @@ async def extract_data(file_path: str) -> dict:
 async def detect_excel_columns_gemini(
     excel_text: str,
     prompt: str = AI_PROMPT_EXCEL_COLUMN_MAPPING,
-    model: str = "gemini-2.5-flash"
+    model_name: str = "gemini-2.5-flash"
 ) -> dict:
     """
     Uses Gemini 2.5 Flash to detect and map Excel columns from given text data.
@@ -103,7 +94,7 @@ async def detect_excel_columns_gemini(
     Args:
         prompt (str): Instruction text for the model.
         excel_text (str): Top rows of Excel formatted as plain text.
-        model (str): Gemini model name (default: gemini-2.5-flash).
+        model_name (str): Gemini model name (default: gemini-2.5-flash).
 
     Returns:
         dict: Parsed JSON result with columns, irrelevant_columns, irrelevant_rows.
@@ -112,7 +103,7 @@ async def detect_excel_columns_gemini(
     user_prompt = f"{prompt}\n\nHere are the top rows from the Excel file:\n\n{excel_text}"
 
     try:
-        model_instance = genai.GenerativeModel(model)
+        model_instance = genai.GenerativeModel(model_name)
         response = await asyncio.to_thread(
             model_instance.generate_content,
             user_prompt,
@@ -146,13 +137,55 @@ def _extract_from_image(image_path: str, prompt: str) -> str:
     """Helper function to extract data from image"""
     img = Image.open(image_path)
     response = model.generate_content([prompt, img])
-    return response.text
+    return parse_string_to_list(response.text)
+
+def _extract_from_pdf(pdf_path: str) -> list:
+    """Helper function to extract structured or unstructured data from PDF."""
+    rows_as_list_of_tuples = extract_pdf_tables_to_tuples(pdf_path)
+    rows_length = len(rows_as_list_of_tuples)
+
+    # 1️⃣ No tables detected — use unstructured extraction
+    if rows_length == 0:
+        pdf_content = extract_text_from_pdf(pdf_path)
+        prompt = f"""{AI_PROMPT_PDF_UNSTRUCTURED_EXTRACTION}
+Here's unstructured data as text:
+{pdf_content[:5000]}
+"""
+        try:
+            response = model.generate_content([prompt])
+            result = (response.text or "").strip()
+            return parse_string_to_list(result)
+        except Exception as e:
+            logger.error(f"Unstructured extraction failed: {e}")
+            return []
+
+    # 2️⃣ Many rows — send only top/bottom parts
+    if rows_length > 15:
+        prompt = f"""{AI_PROMPT_PDF_COLUMN_MAPPING}
+Here's top 10 rows from the PDF data:
+{"\n".join(str(row) for row in rows_as_list_of_tuples[:10])}
+Here's bottom 5 rows from the PDF data:
+{"\n".join(str(row) for row in rows_as_list_of_tuples[-5:])}
+"""
+    else:
+        # 3️⃣ Small dataset — send all rows
+        prompt = f"""{AI_PROMPT_PDF_COLUMN_MAPPING}
+Here's PDF data:
+{"\n".join(str(row) for row in rows_as_list_of_tuples)}
+"""
+
+    # 4️⃣ Send prompt to model
+    try:
+        response = model.generate_content([prompt])
+        eval_response = parse_string_to_list((response.text or "").strip())
+        if not eval_response:
+            return []
+
+        result = map_ai_response_to_dicts(table_rows=rows_as_list_of_tuples, ai_response=eval_response)
+        return result
+    except Exception as e:
+        logger.error(f"Structured extraction failed: {e}")
+        return []
 
 
-def _extract_from_pdf(pdf_path: str, prompt: str) -> str:
-    """Helper function to extract data from PDF"""
-    pdf_file = genai.upload_file(pdf_path)
-    response = model.generate_content([prompt, pdf_file])
-    genai.delete_file(pdf_file.name)
-    return response.text
 
