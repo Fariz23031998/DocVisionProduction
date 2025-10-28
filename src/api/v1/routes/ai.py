@@ -79,7 +79,18 @@ async def invoice_upload_stream(
         # Step 7: Extract data - IN PROGRESS (70%)
         yield f"data: {json.dumps({'status': 'processing', 'message': 'AI is analyzing your document...'})}\n\n"
 
-        result = await extract_data(file_path=file_path)
+        task = asyncio.create_task(extract_data(file_path=file_path))
+
+        while not task.done():
+            yield f"data: {json.dumps({'status': 'keepalive', 'message': 'ИИ обрабатывает документы...'})}\n\n"
+
+            # Wait up to 5 seconds for task to complete
+            done, pending = await asyncio.wait([task], timeout=5.0)
+
+            if done:
+                break
+
+        result = await task
 
         if not result.get("ok"):
             yield f"data: {json.dumps({'status': 'error', 'message': result.get('message', 'File conversion failed')})}\n\n"
@@ -121,7 +132,18 @@ async def detect_columns_stream(
         # Step 2: Detect columns (this is the AI operation)
         yield f"data: {json.dumps({'status': 'detecting', 'message': 'Analyzing columns with AI...'})}\n\n"
 
-        result = await detect_excel_columns_gemini(excel_text=top_rows)
+        task = asyncio.create_task(detect_excel_columns_gemini(excel_text=top_rows))
+
+        while not task.done():
+            yield f"data: {json.dumps({'status': 'keepalive', 'message': 'ИИ обрабатывает документы...'})}\n\n"
+
+            # Wait up to 5 seconds for task to complete
+            done, pending = await asyncio.wait([task], timeout=5.0)
+
+            if done:
+                break
+
+        result = await task
 
         if not result.get("ok"):
             yield f"data: {json.dumps({'status': 'error', 'message': result.get('error', 'Something went wrong')})}\n\n"
