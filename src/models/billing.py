@@ -25,6 +25,7 @@ class SubscriptionUpdate(BaseModel):
 
 class SubscriptionActivate(BaseModel):
     """Model for activating/extending subscription"""
+    email: str
     plan: Literal['standard', 'pro']
     months: int = Field(..., ge=1, le=24, description="Number of months to activate/extend (1-24)")
 
@@ -113,14 +114,12 @@ class PaymentCreateRequest(BaseModel):
     amount: float
     provider: str
     user_id: str
-    subscription_id: str
 
 class PaymentGetResponse(BaseModel):
     id: int
     amount: float
     provider: str
     user_id: str
-    subscription_id: str
     is_canceled: bool
     created_at: datetime
 

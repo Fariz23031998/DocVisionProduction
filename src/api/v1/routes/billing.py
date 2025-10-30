@@ -9,6 +9,7 @@ from src.core.security import get_current_user
 from src.models.billing import OrderResponse, OrderCreate, Order, SubscriptionActivate, \
     SubscriptionSummary
 from src.models.user import User
+from src.core.db import DatabaseConnection
 
 router = APIRouter(prefix="/billing", tags=["Billings"])
 
@@ -22,8 +23,7 @@ async def get_user_subscription(current_user: User = Depends(get_current_user)):
 # Activate or extend subscription
 @router.post("/subscription/activate")
 async def activate_subscription(
-        data: SubscriptionActivate,
-        current_user: User = Depends(get_current_user)
+        data: SubscriptionActivate
 ):
     """
     Activate or extend user's subscription
@@ -31,8 +31,22 @@ async def activate_subscription(
     - Extends existing subscription by adding months
     - Upgrades between paid plans
     """
+    async with DatabaseConnection() as db:
+        user_info = await db.fetch_one(
+                query="SELECT id FROM users WHERE email = ?", 
+                params=(data.email,),
+                raise_http=True
+            )
+
+    if not user_info:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+        )
+
+    user_id = user_info[0]
     subscription = await SubscriptionService.activate_subscription(
-        user_id=current_user.id,
+        user_id=user_id,
         plan=data.plan,
         months=data.months
     )

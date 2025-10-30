@@ -38,8 +38,8 @@ CLICK_PAYMENT_BASE_URL = "https://my.click.uz/services/pay"
 HOME_URL = "http://localhost:8080"
 
 PRICING = {
-    'standard': 192000,
-    'pro': 292000
+    'standard': 1000,
+    'pro': 1500
 }
 
 # Define plan limits and features

@@ -228,9 +228,9 @@ def click_generate_sign_string(
     action: str,
     sign_time: str,
 ):
-    """Generate SHA-1 signature according to Click API spec"""
+    """Generate MD5 signature according to Click API spec"""
     data = f"{click_trans_id}{service_id}{secret_key}{merchant_trans_id}{merchant_prepare_id}{amount}{action}{sign_time}"
-    return hashlib.sha1(data.encode("utf-8")).hexdigest()
+    return hashlib.md5(data.encode("utf-8")).hexdigest()
 
 
 def parse_json_from_response(response: str) -> Optional[dict]:

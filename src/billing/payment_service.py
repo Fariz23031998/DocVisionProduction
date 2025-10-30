@@ -8,13 +8,13 @@ class PaymentService:
     @staticmethod
     async def create_payment(payment: PaymentCreateRequest) -> bool:
         query = """
-        INSERT INTO payments (amount, provider, subscription_id)
+        INSERT INTO payments (amount, provider, user_id)
         VALUES (?, ?, ?)
         """
         async with DatabaseConnection() as db:
             result = await db.execute_one(
                 query=query,
-                params=(payment.amount, payment.provider, payment.subscription_id),
+                params=(payment.amount, payment.provider, payment.user_id),
                 commit=True,
                 raise_http=False
             )
