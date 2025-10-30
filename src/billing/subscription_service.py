@@ -347,14 +347,16 @@ class SubscriptionService:
 
         # Calculate new expiration date
         now = datetime.utcnow()
-        reset_counter = current_subscription.ai_processing < 0
         current_plan = current_subscription.plan
         current_status = current_subscription.status
+        current_processing = current_subscription.ai_processing
+        ai_processing_amount = current_processing if current_processing > 0 else 0
 
         # Determine new expiration date
         if current_plan == "free-trial" or current_status == "expired":
-            # Starting fresh
             new_expires_at = now + relativedelta(months=months)
+            ai_processing_amount += PLANS_CONFIG.get(plan, {}).get("monthly_regeneration", 0)
+
         elif current_subscription.expires_at and current_subscription.expires_at > now:
             # Extend current expiration
             new_expires_at = current_subscription.expires_at + relativedelta(months=months)
@@ -362,41 +364,19 @@ class SubscriptionService:
             # Expired or missing expires_at
             new_expires_at = now + relativedelta(months=months)
 
-
-        ai_processing_amount = PLANS_CONFIG.get(plan, {}).get("monthly_regeneration", 0)
-        if ai_processing_amount <= 0:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Plan '{plan}' has invalid or missing regeneration settings."
-            )
-
         async with DatabaseConnection() as db:
             try:
-                if reset_counter:
-                    await db.execute_one(
-                        query="""
-                            UPDATE subscriptions 
-                            SET plan = ?, status = 'active', expires_at = ?, 
-                                ai_processing = ?, cancelled_at = NULL
-                            WHERE user_id = ?
-                        """,
-                        params=(plan, new_expires_at, ai_processing_amount, user_id),
-                        commit=False,
-                        raise_http=False
-                    )
-                else:
-                    await db.execute_one(
-                        query="""
-                            UPDATE subscriptions 
-                            SET plan = ?, status = 'active', 
-                                ai_processing = ai_processing + ?, 
-                                expires_at = ?, cancelled_at = NULL
-                            WHERE user_id = ?
-                        """,
-                        params=(plan, ai_processing_amount, new_expires_at, user_id),
-                        commit=False,
-                        raise_http=False
-                    )
+                await db.execute_one(
+                    query="""
+                        UPDATE subscriptions 
+                        SET plan = ?, status = 'active', expires_at = ?, 
+                            ai_processing = ?, cancelled_at = NULL
+                        WHERE user_id = ?
+                    """,
+                    params=(plan, new_expires_at, ai_processing_amount, user_id),
+                    commit=False,
+                    raise_http=False
+                )
 
                 # Commit transaction
                 await db.connection.commit()

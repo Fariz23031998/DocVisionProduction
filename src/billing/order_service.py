@@ -3,6 +3,7 @@ import uuid
 import json
 from typing import Optional, List
 from fastapi import HTTPException, status
+
 from src.core.db import DatabaseConnection
 from src.core.conf import PRICING, ORDER_EXPIRATION_HOURS
 from src.models.billing import OrderCreate, Order
@@ -29,10 +30,19 @@ class OrderService:
         return round(discounted_total, 2)
 
     @staticmethod
-    async def create_order(user_id: str, order_data: OrderCreate) -> Order:
+    async def create_order(user_id: str, subscription_plan: str, order_data: OrderCreate) -> Order:
         """Create a new order"""
+        # Check is it user downgrades the plan
+        order_plan = order_data.plan
+        if subscription_plan != "free-trial" and order_plan != subscription_plan:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Changing plan is unavailable at the moment. Please wait until your subscription period ends, then renew your plan."
+            )
+
+
         order_id = str(uuid.uuid4())
-        amount = OrderService.calculate_order_amount(order_data.plan, order_data.months)
+        amount = OrderService.calculate_order_amount(order_plan, order_data.months)
         expires_at = datetime.utcnow() + timedelta(hours=ORDER_EXPIRATION_HOURS)
 
         async with DatabaseConnection() as db:

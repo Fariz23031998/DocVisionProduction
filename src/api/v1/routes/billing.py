@@ -45,7 +45,7 @@ async def activate_subscription(
         )
 
     user_id = user_info[0]
-    subscription = await SubscriptionService.activate_subscription(
+    await SubscriptionService.activate_subscription(
         user_id=user_id,
         plan=data.plan,
         months=data.months
@@ -61,8 +61,11 @@ async def create_order(
         current_user: User = Depends(get_current_user)
 ):
     """Create a new subscription order"""
+    user_id = current_user.id
+    subscription_info = await SubscriptionService.get_subscription(user_id)
+    subscription_plan = subscription_info.plan if subscription_info else "None"
     if order_data.payment_provider == "click":
-        order = await OrderService.create_order(current_user.id, order_data)
+        order = await OrderService.create_order(user_id, subscription_plan, order_data)
 
         payment_url = format_click_url(transaction_param=order.id, amount=order.amount)
 
