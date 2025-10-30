@@ -46,7 +46,7 @@ async def click_prepare(request: Request):
     if float(payload["amount"]) != float(order_data.amount):
         return {"error": -2, "error_note": "Incorrect amount"}
 
-    if order_data.payment_status == "paid":
+    if order_data.status == "paid":
         return {"error": -2, "error_note": "Order is already paid"}
 
     # 3️⃣ Return OK (merchant_prepare_id is usually your internal ID)
