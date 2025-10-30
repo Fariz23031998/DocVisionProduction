@@ -3,6 +3,7 @@ import logging
 
 from src.billing.order_service import OrderService
 from src.billing.payment_service import PaymentService
+from src.billing.subscription_service import SubscriptionService
 from src.core.conf import CLICK_SECRET_KEY
 from src.models.billing import PaymentCreateRequest
 from src.utils.helper import click_generate_sign_string
@@ -45,6 +46,9 @@ async def click_prepare(request: Request):
     if float(payload["amount"]) != float(order_data.amount):
         return {"error": -2, "error_note": "Incorrect amount"}
 
+    if order_data.payment_status == "paid":
+        return {"error": -2, "error_note": "Order is already paid"}
+
     # 3️⃣ Return OK (merchant_prepare_id is usually your internal ID)
     logger.info("Click payment prepared successfully")
     return {
@@ -73,12 +77,13 @@ async def click_complete(request: Request):
         logger.info("Incorrect amount")
         return {"error": -2, "error_note": "Incorrect amount"}
 
+    user_id = order_data.user_id
     # Add payment to the db
     payment_result = await PaymentService.create_payment(
         PaymentCreateRequest(
             amount=order_data.amount,
             provider='click',
-            user_id=order_data.user_id
+            user_id=user_id
         )
     )
 
@@ -94,6 +99,14 @@ async def click_complete(request: Request):
         amount=order_data.amount
     )
     logger.info("Order is marked as paid")
+
+    # Activate subscription
+    await SubscriptionService.activate_subscription(
+        user_id=user_id,
+        plan=order_data.plan,
+        months=order_data.months
+    )
+
     # 3️⃣ Respond success
     logger.info("Click payment completed successfully")
     return {
