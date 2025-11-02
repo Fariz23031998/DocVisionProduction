@@ -120,7 +120,7 @@ class PaymentGetResponse(BaseModel):
     amount: float
     provider: str
     user_id: str
-    is_canceled: bool
+    is_cancelled: bool
     created_at: datetime
 
 

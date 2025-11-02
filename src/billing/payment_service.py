@@ -1,7 +1,10 @@
 from typing import List
+import logging
 
 from src.core.db import DatabaseConnection
 from src.models.billing import PaymentCreateRequest, PaymentGetResponse
+
+logger = logging.getLogger("DocVision")
 
 
 class PaymentService:
@@ -25,16 +28,17 @@ class PaymentService:
                 return True
 
     @staticmethod
-    async def get_payments() -> List[PaymentGetResponse] | []:
+    async def get_payments(user_id: str) -> List[PaymentGetResponse]:
         async with DatabaseConnection() as db:
             result = await db.fetch_all(
-                query="SELECT * FROM payments WHERE is_cancelled = 0",
+                query="SELECT * FROM payments WHERE user_id = ?",
+                params=(user_id, ),
                 raise_http=False
             )
 
             if not result:
                 return []
-
+        logger.info(f"{result}")
         return [PaymentGetResponse(**dict(row)) for row in result]
 
 

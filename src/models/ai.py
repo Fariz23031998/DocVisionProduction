@@ -35,3 +35,7 @@ class ExcelColumnDetectionResponse(BaseModel):
     result: ExcelColumnDetectionResult = Field(
         ..., description="Parsed JSON result with detected columns and irrelevant data."
     )
+
+class AIMatchRequest(BaseModel):
+    not_matched_items: str
+    found_result: str

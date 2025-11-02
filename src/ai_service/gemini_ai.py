@@ -6,12 +6,12 @@ import google.generativeai as genai
 from PIL import Image
 from fastapi import HTTPException
 from google.api_core.exceptions import GoogleAPIError
-from starlette.status import HTTP_400_BAD_REQUEST
+from starlette.status import HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR
 
 from src.ai_service.ai_helper import extract_text_from_pdf
 from src.core.conf import GEMINI_API_KEY
 from src.ai_service.prompt import AI_PROMPT_EXCEL_COLUMN_MAPPING, prompt_common_rules, \
-    AI_PROMPT_PDF_COLUMN_MAPPING, AI_PROMPT_PDF_UNSTRUCTURED_EXTRACTION, prompt_header_image
+    AI_PROMPT_PDF_COLUMN_MAPPING, AI_PROMPT_PDF_UNSTRUCTURED_EXTRACTION, prompt_header_image, format_match_prompt
 from src.utils.helper import write_json_file
 from src.utils.pdf_extractor import extract_pdf_tables_to_tuples, parse_string_to_list, map_ai_response_to_dicts
 
@@ -131,6 +131,44 @@ async def detect_excel_columns_gemini(
     except Exception as e:
         logger.error(f"❌ Unexpected error: {e}")
         return {"ok": False, "error": str(e)}
+
+async def ai_match_products(not_matched_items: str, found_result: str) -> dict | list:
+    prompt = format_match_prompt(not_matched_items, found_result)
+    try:
+        response = await asyncio.to_thread(
+            model.generate_content,
+            prompt,
+            generation_config=genai.types.GenerationConfig(
+                temperature=0,
+                response_mime_type="application/json"
+            )
+        )
+
+        response_text = (response.text or "").strip()
+        if response_text == "###false###":
+            return {}
+
+        result = parse_string_to_list(response_text)
+        write_json_file(result)
+        return result
+
+    except GoogleAPIError as e:
+        error_message = f"Error: {e}"
+        logger.error(error_message)
+        raise HTTPException(
+            status_code=HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=error_message
+        )
+    except Exception as e:
+        error_message = f"Error: {e}"
+        logger.error(error_message)
+        raise HTTPException(
+            status_code=HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=error_message
+        )
+
+
+
 
 
 def _extract_from_image(image_path: str, prompt: str) -> str:

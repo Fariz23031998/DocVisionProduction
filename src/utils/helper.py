@@ -7,9 +7,6 @@ import re
 from pathlib import Path
 from string import Template
 from typing import Optional, Any
-from PIL import Image
-import fitz
-from io import BytesIO
 from cryptography.fernet import Fernet
 import logging
 
@@ -233,7 +230,7 @@ def click_generate_sign_string(
     return hashlib.md5(data.encode("utf-8")).hexdigest()
 
 
-def parse_json_from_response(response: str) -> Optional[dict]:
+def parse_json_from_response(response: str) -> Optional[dict | list]:
     """
     Extract and parse JSON from a string that may contain markdown code blocks.
 

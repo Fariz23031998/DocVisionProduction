@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi import status
 
 from src.billing.order_service import OrderService
+from src.billing.payment_service import PaymentService
 from src.billing.subscription_service import SubscriptionService
 from src.core.conf import ORDER_EXPIRATION_HOURS, PLANS_CONFIG, format_click_url
 from src.core.security import get_current_user
@@ -145,25 +146,13 @@ async def cancel_order(
         "order": order
     }
 
-
-@router.post("/payments/webhook")
-async def payment_webhook(payload: dict):
-    provider = payload.get("provider")
-    order_id = payload.get("order_id")
-
-    # Verify signature or secret key (example for Click.uz / Stripe)
-    # verify_payment_signature(payload)
-
-    # Activate subscription
-    subscription = await SubscriptionService.activate_subscription_with_order(
-        order_id=order_id,
-        payment_data=payload
-    )
-
-    return {"ok": True, "subscription": subscription}
-
 # Get pricing information
 @router.get("/pricing")
 async def get_pricing():
     """Get subscription pricing with discounts"""
     return PLANS_CONFIG
+
+@router.get("/payments")
+async def get_payments(current_user: User = Depends(get_current_user)):
+    return await PaymentService.get_payments(current_user.id)
+

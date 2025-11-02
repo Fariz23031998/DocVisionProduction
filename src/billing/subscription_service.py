@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import uuid
@@ -573,8 +574,7 @@ class SubscriptionService:
         months_diff = (now.year - started_at.year) * 12 + (now.month - started_at.month)
 
         # Shift started_at forward by that many months
-        plan_current_month_started_time = started_at + relativedelta(months=months_diff)
-
+        plan_current_month_started_time = started_at + relativedelta(months=months_diff - 1)
         async with DatabaseConnection() as db:
             result = await db.fetch_one(
                 query="""
@@ -624,3 +624,4 @@ class SubscriptionService:
             "last_daily_regen": subscription.last_daily_regen,
             "price": price
         }
+

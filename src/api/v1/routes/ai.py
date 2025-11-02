@@ -7,11 +7,11 @@ from fastapi.responses import StreamingResponse
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status
 import logging
 
-from src.ai_service.gemini_ai import extract_data, detect_excel_columns_gemini
+from src.ai_service.gemini_ai import extract_data, detect_excel_columns_gemini, ai_match_products
 from src.billing.subscription_service import SubscriptionService
 from src.core.conf import ALLOWED_EXTENSIONS, MAX_FILE_SIZE
 from src.core.security import get_current_user
-from src.models.ai import ExcelColumnDetectionResponse, DetectColumnName
+from src.models.ai import ExcelColumnDetectionResponse, DetectColumnName, AIMatchRequest
 from src.models.user import User
 from src.utils.helper import compress_file
 
@@ -158,6 +158,54 @@ async def detect_columns_stream(
         logger.error(f"Error in detect_columns_stream: {error_details}")
         yield f"data: {json.dumps({'status': 'error', 'message': str(e)})}\n\n"
 
+async def ai_match_products_stream(
+        not_matched_items: str,
+        found_result: str,
+        current_user: User
+) -> AsyncGenerator[str, None]:
+    """Stream processing updates for match products"""
+    try:
+        # Step 1: Check subscription
+        yield f"data: {json.dumps({'status': 'checking_subscription', 'message': 'Checking AI usage...'})}\n\n"
+
+        user_id = current_user.id
+        usage_result = await SubscriptionService.save_ai_usage_operation(user_id=user_id)
+        # Check if the operation failed
+        if not usage_result.get("ok"):
+            error_message = usage_result.get("message", "Failed to check AI usage")
+            error_code = usage_result.get("code", 500)
+            yield f"data: {json.dumps({'status': 'error', 'message': error_message, "error_code": error_code})}\n\n"
+            return  # Break SSE stream - STOPS HERE
+
+        # Step 2: Detect columns (this is the AI operation)
+        yield f"data: {json.dumps({'status': 'detecting', 'message': 'Analyzing unmatched products with AI...'})}\n\n"
+
+        task = asyncio.create_task(ai_match_products(not_matched_items, found_result))
+
+        while not task.done():
+            yield f"data: {json.dumps({'status': 'keepalive', 'message': 'ИИ обрабатывает сопоставление продуктов...'})}\n\n"
+
+            # Wait up to 5 seconds for task to complete
+            done, pending = await asyncio.wait([task], timeout=5.0)
+
+            if done:
+                break
+
+        result = await task
+
+        if not result:
+            yield f"data: {json.dumps({'status': 'error', 'message': result.get('error', 'Something went wrong')})}\n\n"
+            return
+
+        # Step 3: Success
+        yield f"data: {json.dumps({'status': 'completed', 'result': result})}\n\n"
+
+    except Exception as e:
+        import traceback
+        error_details = traceback.format_exc()
+        logger.error(f"Error in detect_columns_stream: {error_details}")
+        yield f"data: {json.dumps({'status': 'error', 'message': str(e)})}\n\n"
+
 @router.post("/invoice-file-upload")
 async def invoice_file_upload(
     current_user: User = Depends(get_current_user),
@@ -190,6 +238,19 @@ async def detect_column_names(
 
     return StreamingResponse(
         detect_columns_stream(top_rows, current_user),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"
+        }
+    )
+
+@router.post("/match")
+async def match_products_with_ai(data: AIMatchRequest, current_user: User = Depends(get_current_user)):
+    logger.info(f"data: {data}")
+    return StreamingResponse(
+        ai_match_products_stream(data.not_matched_items, data.found_result, current_user),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",

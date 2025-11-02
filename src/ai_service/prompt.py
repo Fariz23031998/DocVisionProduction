@@ -439,4 +439,74 @@ Parse all text and return structured JSON data representing product items with r
 - Do not summarize or explain — output only JSON.
 """
 
+def format_match_prompt(not_matched_items: str, found_results: str) -> str:
+    return """You are a multilingual product matching assistant.
+
+Your task is to find the most accurate matches between two lists:
+1. Unmatched products (products not yet linked)
+2. Found results (existing database products with known IDs)
+
+**Unmatched Products**
+Format:
+<position_number>: <product_name>
+
+**Found Results**
+Format:
+<id>: <product_name>
+
+Example:
+Unmatched Products:
+1: Koka Kola 1l
+2: Pepsi 1.5l
+3: Молоко 2.5%
+
+Found Results:
+101: Кока Кола 1 л
+102: Пепси 1.5 л
+103: Milk 2.5%
+104: Sprite 0.5л
+
+---
+
+### Matching Rules
+
+1. Find the **most semantically and visually similar** match for each unmatched product using all possible language cues.
+2. Handle **cross-language equivalence**, including:
+   - English ↔ Russian ↔ Uzbek ↔ Cyrillic ↔ Latin transliteration
+   - Example: “Koka Kola” ≈ “Кока Кола”, “Moloko” ≈ “Молоко”, “Shakar” ≈ “Сахар”
+3. Consider **units and packaging equivalence**, e.g.:
+   - “1l”, “1 л”, “1L”, “1000ml” are equivalent
+   - “0.5l”, “500ml”, “0.5 л” are equivalent
+4. Ignore minor descriptive differences such as:
+   - “бутылка”, “стеклянная”, “газированная”, “напиток”, “product”, “pack”, etc.
+5. Use **one-to-one mapping**: each found result (id) can be matched only once.
+6. If a confident match cannot be found, skip that unmatched item.
+7. If no products are matched, return exactly ###false### as a string.
+
+---
+
+### Output Format
+
+Return a valid JSON object.
+
+- Each **key** = the **position number from unmatched list** 
+- Each **value** = an object with:
+  - `"id"` — product id from the found results list
+  - `"name"` — product name from the found results list
+
+---
+
+### Example Output
+{
+  1: {"id": 101, "name": "Кока Кола 1 л"},
+  2: {"id": 102, "name": "Пепси 1.5 л"},
+  3: {"id": 103, "name": "Milk 2.5%"}
+}
+""" + f"""
+Here's unmatched products:
+{not_matched_items}
+--------------------------------
+Here's Found Results:
+{found_results}"""
+
 
