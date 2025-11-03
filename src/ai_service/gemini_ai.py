@@ -12,7 +12,7 @@ from src.ai_service.ai_helper import extract_text_from_pdf
 from src.core.conf import GEMINI_API_KEY
 from src.ai_service.prompt import AI_PROMPT_EXCEL_COLUMN_MAPPING, prompt_common_rules, \
     AI_PROMPT_PDF_COLUMN_MAPPING, AI_PROMPT_PDF_UNSTRUCTURED_EXTRACTION, prompt_header_image, format_match_prompt
-from src.utils.helper import write_json_file
+
 from src.utils.pdf_extractor import extract_pdf_tables_to_tuples, parse_string_to_list, map_ai_response_to_dicts
 
 logger = logging.getLogger("DocVision")
@@ -148,9 +148,7 @@ async def ai_match_products(not_matched_items: str, found_result: str) -> dict |
         if response_text == "###false###":
             return {}
 
-        result = parse_string_to_list(response_text)
-        write_json_file(result)
-        return result
+        return parse_string_to_list(response_text)
 
     except GoogleAPIError as e:
         error_message = f"Error: {e}"
@@ -166,10 +164,6 @@ async def ai_match_products(not_matched_items: str, found_result: str) -> dict |
             status_code=HTTP_500_INTERNAL_SERVER_ERROR,
             detail=error_message
         )
-
-
-
-
 
 def _extract_from_image(image_path: str, prompt: str) -> str:
     """Helper function to extract data from image"""

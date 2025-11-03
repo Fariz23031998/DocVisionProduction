@@ -210,8 +210,6 @@ class DatabaseConnection:
                 )
             """)
 
-            await DatabaseConnection.migrate_payments_table(db)
-
             # Create ai_usage_operations
             await db.execute("""
                 CREATE TABLE IF NOT EXISTS ai_processing_operations (
