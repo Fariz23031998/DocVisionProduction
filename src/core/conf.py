@@ -27,7 +27,7 @@ CLICK_MERCHANT_ID = os.getenv("CLICK_MERCHANT_ID")
 CLICK_SERVICE_ID = os.getenv("CLICK_SERVICE_ID")
 CLICK_MERCHANT_USER_ID = os.getenv("CLICK_MERCHANT_USER_ID")
 CLICK_SECRET_KEY = os.getenv("CLICK_SECRET_KEY")
-ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.heic', '.heif', ".pdf"}
+ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.heic', '.heif', ".mpo", ".pdf"}
 
 MAX_FILE_SIZE = 5 * 1024 * 1024
 # Order expiration (unpaid orders expire after this time)
@@ -48,19 +48,17 @@ PLANS_CONFIG = {
         'monthly_regeneration': 30,
         'daily_regeneration': 0,  # No daily regeneration for free trial
         'features': [
-            'Advanced product management',
-            'Online Support',
-            'API access'
+            'Расширенное управление продуктами',
+            'Онлайн-поддержка'
         ]
     },
     'standard': {
         'monthly_regeneration': 200,
         'daily_regeneration': 5,  # Regenerate 5 files per day
         'features': [
-            'Advanced product management',
-            'Priority online support',
-            'API access',
-            'Daily credit regeneration (5 files/day)'
+            'Расширенное управление продуктами',
+            'Приоритетная онлайн-поддержка',
+            'Ежедневное восстановление: 5 кредит'
         ],
         "pricing": {
             "price_per_month": PRICING["standard"],
@@ -76,10 +74,9 @@ PLANS_CONFIG = {
         'monthly_regeneration': 300,
         'daily_regeneration': 10,  # Regenerate 10 files per day
         'features': [
-            'Advanced product management',
-            'Priority online support',
-            'API access',
-            'Daily credit regeneration (10 files/day)'
+            'Расширенное управление продуктами',
+            'Приоритетная онлайн-поддержка',
+            'Ежедневное восстановление: 10 кредит'
         ],
         "pricing": {
             "price_per_month": PRICING["pro"],

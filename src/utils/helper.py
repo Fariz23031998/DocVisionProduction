@@ -9,9 +9,13 @@ from string import Template
 from typing import Optional, Any
 from cryptography.fernet import Fernet
 import logging
+from pillow_heif import register_heif_opener
+from PIL import Image
+import io
 
 from src.core.conf import ENCRYPTION_KEY
 
+register_heif_opener()
 logger = logging.getLogger("DocVision")
 cipher_suite = Fernet(ENCRYPTION_KEY)
 
@@ -291,27 +295,52 @@ def parse_json_strict(response: str) -> dict:
 async def compress_file(content: bytes, extension: str) -> bytes:
     """Compress file content"""
     try:
-        if extension in ['.jpg', '.jpeg', '.png']:
-            # Image compression
-            from PIL import Image
-            import io
+        # Image formats that PIL can handle
+        extension_lower = extension.lower()
 
+        if extension_lower in ['.jpg', '.jpeg', '.png', '.webp', '.bmp']:
             img = Image.open(io.BytesIO(content))
             output = io.BytesIO()
-            img.save(output, format=img.format, quality=85, optimize=True)
+
+            # Determine output format
+            format_map = {
+                '.jpg': 'JPEG',
+                '.jpeg': 'JPEG',
+                '.png': 'PNG',
+                '.webp': 'WEBP'
+            }
+
+            save_format = format_map.get(extension.lower(), img.format)
+
+            # Compress based on format
+            if save_format == 'PNG':
+                img.save(output, format='PNG', optimize=True)
+            else:
+                img.save(output, format=save_format, quality=85, optimize=True)
+
             return output.getvalue()
 
-        elif extension == '.pdf':
-            # PDF compression (if needed)
-            return content  # Or use PyPDF2 compression
+        elif extension_lower in ['.heic', '.heif']:
+            # HEIC/HEIF - pass through or convert to JPEG if needed
+            # Note: PIL might not support HEIC without pillow-heif plugin
+            try:
+                img = Image.open(io.BytesIO(content))
+                output = io.BytesIO()
+                img.save(output, format='JPEG', quality=85, optimize=True)
+                return output.getvalue()
+            except Exception as e:
+                logger.error(f"Error compressing file: {e}")
+                return content  # Return original if conversion fails
+
+        elif extension_lower == '.pdf':
+            return content  # PDF - no compression
 
         else:
-            # No compression for other types
-            return content
+            return content  # Pass through unknown types
 
     except Exception as e:
         logger.info(f"Compression error: {e}")
-        return content  # Return original if compression fails
+        return content
 
 
 def write_json_file(

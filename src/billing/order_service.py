@@ -37,7 +37,7 @@ class OrderService:
         if subscription_plan != "free-trial" and order_plan != subscription_plan:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Changing plan is unavailable at the moment. Please wait until your subscription period ends, then renew your plan."
+                detail="Смена тарифного плана в настоящее время недоступна. Пожалуйста, дождитесь окончания срока подписки, а затем смените её."
             )
 
 

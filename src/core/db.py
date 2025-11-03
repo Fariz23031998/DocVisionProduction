@@ -10,6 +10,47 @@ logger = logging.getLogger("DocVision")
 # Database setup
 class DatabaseConnection:
     """Unified core connection class with all core operations as methods"""
+    @staticmethod
+    async def migrate_payments_table(db):
+        async with db.execute("PRAGMA foreign_keys=off"):
+            # Start transaction
+            await db.execute("BEGIN TRANSACTION")
+
+            try:
+                # Create new table with correct schema
+                await db.execute("""
+                    CREATE TABLE IF NOT EXISTS payments_new (
+                        id INTEGER PRIMARY KEY,
+                        amount REAL NOT NULL,
+                        provider TEXT NOT NULL,
+                        user_id TEXT NOT NULL,
+                        is_cancelled BOOLEAN DEFAULT FALSE,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+                    )
+                """)
+
+                # Copy data from old table to new table
+                await db.execute("""
+                    INSERT INTO payments_new (id, amount, provider, user_id, is_cancelled, created_at)
+                    SELECT id, amount, provider, user_id, is_cancelled, created_at
+                    FROM payments
+                """)
+
+                # Drop old table
+                await db.execute("DROP TABLE payments")
+
+                # Rename new table to original name
+                await db.execute("ALTER TABLE payments_new RENAME TO payments")
+
+                # Commit transaction
+                await db.commit()
+
+            except Exception as e:
+                await db.rollback()
+                raise e
+            finally:
+                await db.execute("PRAGMA foreign_keys=on")
 
     @staticmethod
     async def add_column_with_fk_actions(
@@ -159,7 +200,7 @@ class DatabaseConnection:
             # Create payments table
             await db.execute("""
                 CREATE TABLE IF NOT EXISTS payments (
-                    id INT PRIMARY KEY,
+                    id INTEGER PRIMARY KEY,
                     amount REAL NOT NULL,
                     provider TEXT NOT NULL,
                     user_id TEXT NOT NULL,
@@ -168,6 +209,8 @@ class DatabaseConnection:
                     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
                 )
             """)
+
+            await DatabaseConnection.migrate_payments_table(db)
 
             # Create ai_usage_operations
             await db.execute("""

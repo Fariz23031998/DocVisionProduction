@@ -1,8 +1,11 @@
 import asyncio
+import io
 import json
 from datetime import datetime
 from pathlib import Path
 from typing import AsyncGenerator
+
+from PIL import Image
 from fastapi.responses import StreamingResponse
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status
 import logging
@@ -19,13 +22,21 @@ logger = logging.getLogger("DocVision")
 router = APIRouter(prefix="/ai", tags=["AI"])
 
 
+def normalize_mpo_to_jpeg(file_content: bytes) -> bytes:
+    img = Image.open(io.BytesIO(file_content))
+    img.seek(0)  # first frame
+    output = io.BytesIO()
+    img.save(output, format="JPEG")
+    return output.getvalue()
+
+
 async def invoice_upload_stream(
         file_content: bytes,
         file_extension: str,
         current_user: User
 ) -> AsyncGenerator[str, None]:
     """Stream processing updates for invoice upload"""
-    file_path = None
+
     try:
         # Step 1: Validate file extension
         yield f"data: {json.dumps({'status': 'validating', 'message': 'Checking file type...'})}\n\n"
@@ -36,9 +47,11 @@ async def invoice_upload_stream(
 
         # Step 2: Check size (15%)
         yield f"data: {json.dumps({'status': 'checking_size', 'message': 'Checking file size...'})}\n\n"
+        if file_extension == ".mpo":
+            file_content = normalize_mpo_to_jpeg(file_content)
+            file_extension = ".jpg"
 
         file_size = len(file_content)
-
         # Step 3: Compress if needed (25%)
         if file_size > MAX_FILE_SIZE:
             yield f"data: {json.dumps({'status': 'compressing', 'message': 'File too large, compressing...'})}\n\n"
