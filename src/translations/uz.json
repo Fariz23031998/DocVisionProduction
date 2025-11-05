@@ -1,5 +1,6 @@
 {
     "version": "1.0.0",
+    "last_updated": "2025-11-03 00:00",
     "translations": {
         "common.loading": "Yuklanmoqda...",
         "common.save": "Saqlash",
@@ -62,7 +63,7 @@
         "header.subscription.limits": "Limitlar",
         "header.subscription.monthlyRegen": "Oylik tiklanish:",
         "header.subscription.dailyRegen": "Kunlik tiklanish:",
-        "header.subscription.cost": "Narxi:",
+        "header.subscription.price": "Narxi:",
         "header.subscription.error": "Obuna ma'lumotlarini yuklashda xatolik",
         "header.subscription.noData": "Obuna ma'lumotlarini yuklashda xatolik",
 
@@ -76,14 +77,15 @@
         "header.profile.saving": "Saqlanmoqda...",
 
         "header.password.dialog.title": "Parolni o'zgartirish",
-        "header.password.oldPassword": "Eski parol",
-        "header.password.oldPassword.placeholder": "Eski parolni kiriting",
+        "header.password.dialog.description": "Joriy va yangi parollaringizni kiriting.",
+        "header.password.currentPassword": "Joriy parol",
+        "header.password.currentPassword.placeholder": "Joriy parolni kiriting",
         "header.password.newPassword": "Yangi parol",
-        "header.password.newPassword.placeholder": "Yangi parolni kiriting",
+        "header.password.newPassword.placeholder": "Harflar va raqamlar bilan kamida 8 ta belgi",
         "header.password.confirmPassword": "Parolni tasdiqlang",
         "header.password.confirmPassword.placeholder": "Yangi parolni tasdiqlang",
         "header.password.error.empty": "Iltimos, barcha maydonlarni to'ldiring",
-        "header.password.error.mismatch": "Yangi parollar mos kelmaydi",
+        "header.password.error.mismatch": "Yangi parollar mos kelmadi",
         "header.password.error.length": "Yangi parol kamida 8 ta belgidan iborat bo'lishi kerak",
         "header.password.error.format": "Parol harflar va raqamlardan iborat bo'lishi kerak",
         "header.password.error.failed": "Parolni o'zgartirishda xatolik",

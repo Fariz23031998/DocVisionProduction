@@ -1,5 +1,6 @@
 {
     "version": "1.0.0",
+    "last_updated": "2025-11-03 00:00",
     "translations": {
         "common.loading": "Загрузка...",
         "common.save": "Сохранить",
@@ -33,6 +34,8 @@
         "common.filter": "Фильтр",
         "common.export": "Экспорт",
         "common.import": "Импорт",
+        "common.welcome": "Добро пожаловать, ",
+        "common.month": "месяц",
 
         "header.appName": "docvision",
         "header.main": "Главная",
@@ -62,7 +65,7 @@
         "header.subscription.limits": "Лимиты",
         "header.subscription.monthlyRegen": "Ежемесячное восстановление:",
         "header.subscription.dailyRegen": "Ежедневное восстановление:",
-        "header.subscription.cost": "Стоимость:",
+        "header.subscription.price": "Стоимость:",
         "header.subscription.error": "Не удалось загрузить информацию о подписке",
         "header.subscription.noData": "Не удалось загрузить данные о подписке",
 
@@ -76,12 +79,13 @@
         "header.profile.saving": "Сохранение...",
 
         "header.password.dialog.title": "Изменить пароль",
-        "header.password.oldPassword": "Старый пароль",
-        "header.password.oldPassword.placeholder": "Введите старый пароль",
+        "header.password.dialog.description": "Введите текущий и новый пароль",
+        "header.password.currentPassword": "Текущий пароль",
+        "header.password.currentPassword.placeholder": "Введите текущий пароль",
         "header.password.newPassword": "Новый пароль",
-        "header.password.newPassword.placeholder": "Введите новый пароль",
-        "header.password.confirmPassword": "Подтвердите пароль",
-        "header.password.confirmPassword.placeholder": "Подтвердите новый пароль",
+        "header.password.newPassword.placeholder": "Минимум 8 символов с буквами и цифрами",
+        "header.password.confirmPassword": "Подтвердите новый пароль",
+        "header.password.confirmPassword.placeholder": "Повторите новый пароль",
         "header.password.error.empty": "Пожалуйста, заполните все поля",
         "header.password.error.mismatch": "Новые пароли не совпадают",
         "header.password.error.length": "Новый пароль должен быть не менее 8 символов",
@@ -93,7 +97,7 @@
         "header.logout.dialog.title": "Подтвердите выход",
         "header.logout.dialog.description": "Вы уверены, что хотите выйти?",
         "header.logout.dialog.allDevices": "Выйти со всех устройств",
-        "header.logout.dialog.thisDevice": "Выйти с этого устройства",
+        "header.logout.dialog.thisDevice": "Выйти из текущего устройства",
         "header.logout.success": "Вы вышли из системы",
         "header.logout.success.allDevices": "Вы вышли со всех устройств",
         "header.logout.error": "Ошибка при выходе",
@@ -291,11 +295,12 @@
         "auth.reset.error": "Ошибка сброса пароля",
 
         "plans.title": "Тарифные планы",
-        "plans.subtitle": "Выберите подходящий план",
+        "plans.subtitle": "Выберите подходящий тариф для вашего бизнеса",
         "plans.monthly": "в месяц",
         "plans.feature": "функция",
         "plans.subscribe": "Подписаться",
         "plans.current": "Текущий план",
+        "plans.loading.error": "Не удалось загрузить тарифы",
 
         "payments.title": "История платежей",
         "payments.noPayments": "Нет платежей",

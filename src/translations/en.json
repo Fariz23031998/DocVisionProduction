@@ -1,5 +1,6 @@
 {
   "version": "1.0.0",
+  "last_updated": "2025-11-03 00:00",
   "translations": {
     "common.loading": "Loading...",
     "common.save": "Save",
@@ -62,7 +63,7 @@
     "header.subscription.limits": "Limits",
     "header.subscription.monthlyRegen": "Monthly regeneration:",
     "header.subscription.dailyRegen": "Daily regeneration:",
-    "header.subscription.cost": "Cost:",
+    "header.subscription.price": "Price:",
     "header.subscription.error": "Failed to load subscription information",
     "header.subscription.noData": "Failed to load subscription data",
 
@@ -76,10 +77,11 @@
     "header.profile.saving": "Saving...",
 
     "header.password.dialog.title": "Change Password",
-    "header.password.oldPassword": "Old Password",
-    "header.password.oldPassword.placeholder": "Enter old password",
+    "header.password.dialog.description": "Enter your current and new passwords.",
+    "header.password.currentPassword": "Current password",
+    "header.password.currentPassword.placeholder": "Enter current password",
     "header.password.newPassword": "New Password",
-    "header.password.newPassword.placeholder": "Enter new password",
+    "header.password.newPassword.placeholder": "Minimum 8 characters with letters and numbers",
     "header.password.confirmPassword": "Confirm Password",
     "header.password.confirmPassword.placeholder": "Confirm new password",
     "header.password.error.empty": "Please fill in all fields",

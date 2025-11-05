@@ -26,25 +26,19 @@ class Translator:
 
         return self._cache[lang]
 
-    def get_language_version(self, lang: str) -> str:
+    def get_language_version(self, lang: str) -> dict:
         if lang not in self._cache:
             self._load_language(lang)
-            return self._cache[lang]['version']
+            return {"version": self._cache[lang]['version'], "last_updated": self._cache[lang]['last_updated']}
 
-        return self._cache[lang]['version']
+        return {"version": self._cache[lang]['version'], "last_updated": self._cache[lang]['last_updated']}
 
     def get(self, key: str, lang: str = None) -> str:
         lang = lang or self.default_lang
         self._load_language(lang)  # No-op if already loaded
         return self._cache[lang].get(key, key)
 
-    @classmethod
-    def clear_cache(cls):
+    def clear_cache(self):
         """Useful for hot-reloading in development"""
-        cls._cache.clear()
+        self._cache.clear()
 
-
-# Usage
-t = Translator()
-test = t.get_language_version("uz")  # Fast: reads from memory
-print(test)
