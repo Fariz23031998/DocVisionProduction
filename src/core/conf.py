@@ -48,17 +48,16 @@ PLANS_CONFIG = {
         'monthly_regeneration': 30,
         'daily_regeneration': 0,  # No daily regeneration for free trial
         'features': [
-            'Расширенное управление продуктами',
-            'Онлайн-поддержка'
-        ]
+            'plans.features.productManagement',
+            'plans.features.OnlineSupport'
+        ],
     },
     'standard': {
         'monthly_regeneration': 200,
         'daily_regeneration': 5,  # Regenerate 5 files per day
         'features': [
-            'Расширенное управление продуктами',
-            'Приоритетная онлайн-поддержка',
-            'Ежедневное восстановление: 5 кредит'
+            'plans.features.productManagement',
+            'plans.features.PriorityOnlineSupport'
         ],
         "pricing": {
             "price_per_month": PRICING["standard"],
@@ -74,9 +73,8 @@ PLANS_CONFIG = {
         'monthly_regeneration': 300,
         'daily_regeneration': 10,  # Regenerate 10 files per day
         'features': [
-            'Расширенное управление продуктами',
-            'Приоритетная онлайн-поддержка',
-            'Ежедневное восстановление: 10 кредит'
+            'plans.features.productManagement',
+            'plans.features.PriorityOnlineSupport'
         ],
         "pricing": {
             "price_per_month": PRICING["pro"],
