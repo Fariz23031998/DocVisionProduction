@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.v1.routes import auth, users, billing, regos_proxy, tokens, system, ai, click, lang
+from src.core.conf import ENVIRONMENT
 from src.core.lifespan import lifespan
 from src.core.logger import setup_logger
 
@@ -25,27 +26,28 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Production
-# app.include_router(auth.router, prefix="/v1")
-# app.include_router(users.router, prefix="/v1")
-# app.include_router(tokens.router, prefix="/v1")
-# app.include_router(billing.router, prefix="/v1")
-# app.include_router(regos_proxy.router, prefix="/v1")
-# app.include_router(ai.router, prefix="/v1")
-# app.include_router(system.router, prefix="/v1")
-# app.include_router(lang.router, prefix="/api/v1")
-# app.include_router(click.router, prefix="")
-
-# Development
-app.include_router(auth.router, prefix="/api/v1")
-app.include_router(users.router, prefix="/api/v1")
-app.include_router(tokens.router, prefix="/api/v1")
-app.include_router(billing.router, prefix="/api/v1")
-app.include_router(regos_proxy.router, prefix="/api/v1")
-app.include_router(ai.router, prefix="/api/v1")
-app.include_router(system.router, prefix="/api/v1")
-app.include_router(lang.router, prefix="/api/v1")
-app.include_router(click.router, prefix="/api")
+if ENVIRONMENT == "development":
+    # Development
+    app.include_router(auth.router, prefix="/api/v1")
+    app.include_router(users.router, prefix="/api/v1")
+    app.include_router(tokens.router, prefix="/api/v1")
+    app.include_router(billing.router, prefix="/api/v1")
+    app.include_router(regos_proxy.router, prefix="/api/v1")
+    app.include_router(ai.router, prefix="/api/v1")
+    app.include_router(system.router, prefix="/api/v1")
+    app.include_router(lang.router, prefix="/api/v1")
+    app.include_router(click.router, prefix="/api")
+else:
+    # Production
+    app.include_router(auth.router, prefix="/v1")
+    app.include_router(users.router, prefix="/v1")
+    app.include_router(tokens.router, prefix="/v1")
+    app.include_router(billing.router, prefix="/v1")
+    app.include_router(regos_proxy.router, prefix="/v1")
+    app.include_router(ai.router, prefix="/v1")
+    app.include_router(system.router, prefix="/v1")
+    app.include_router(lang.router, prefix="/v1")
+    app.include_router(click.router, prefix="")
 
 
 if __name__ == "__main__":
