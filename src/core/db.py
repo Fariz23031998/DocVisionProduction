@@ -266,8 +266,6 @@ class DatabaseConnection:
                 )
             """)
 
-            await DatabaseConnection.migrate_ai_processing_operations()
-
             # Create indexes for better performance
             await db.execute("""
                   CREATE INDEX IF NOT EXISTS idx_users_email ON users (email)
