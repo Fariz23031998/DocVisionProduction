@@ -116,7 +116,7 @@
         "index.button.uploadExcel": "Загрузить из Excel",
         "index.button.uploadInvoice": "Загрузить счёт (PDF, JPG, PNG)",
         "index.column.articul": "Артикул",
-        "index.column.barcodes": "штрихкоды",
+        "index.column.barcodes": "Штрихкоды",
         "index.column.brandName": "Бренд",
         "index.column.code": "Код",
         "index.column.colorName": "Цвет",
