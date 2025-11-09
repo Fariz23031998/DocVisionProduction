@@ -29,6 +29,10 @@ class SubscriptionActivate(BaseModel):
     plan: Literal['standard', 'pro']
     months: int = Field(..., ge=1, le=24, description="Number of months to activate/extend (1-24)")
 
+class SubscriptionActivateForce(SubscriptionActivate):
+    code: str
+
+
 class SubscriptionResponse(BaseModel):
     subscription: Subscription
     limits: dict

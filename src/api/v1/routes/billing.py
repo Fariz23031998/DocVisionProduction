@@ -5,10 +5,10 @@ from fastapi import status
 from src.billing.order_service import OrderService
 from src.billing.payment_service import PaymentService
 from src.billing.subscription_service import SubscriptionService
-from src.core.conf import ORDER_EXPIRATION_HOURS, PLANS_CONFIG, format_click_url
+from src.core.conf import ORDER_EXPIRATION_HOURS, PLANS_CONFIG, format_click_url, ADMIN_CODE
 from src.core.security import get_current_user
 from src.models.billing import OrderResponse, OrderCreate, Order, SubscriptionActivate, \
-    SubscriptionSummary
+    SubscriptionSummary, SubscriptionActivateForce
 from src.models.user import User
 from src.core.db import DatabaseConnection
 
@@ -24,7 +24,7 @@ async def get_user_subscription(current_user: User = Depends(get_current_user)):
 # Activate or extend subscription
 @router.post("/subscription/activate")
 async def activate_subscription(
-        data: SubscriptionActivate
+        data: SubscriptionActivateForce
 ):
     """
     Activate or extend user's subscription
@@ -32,6 +32,12 @@ async def activate_subscription(
     - Extends existing subscription by adding months
     - Upgrades between paid plans
     """
+    if data.code != ADMIN_CODE:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid activation code"
+        )
+
     async with DatabaseConnection() as db:
         user_info = await db.fetch_one(
                 query="SELECT id FROM users WHERE email = ?", 

@@ -4,10 +4,12 @@ from fastapi import status
 from src.auth.auth import AuthService, email_exists
 from src.auth.session import SessionManager
 from src.auth.user import UserService
+from src.core.conf import ADMIN_CODE
 from src.core.db import DatabaseConnection
 from src.core.security import get_current_user, get_session_id_from_token
 from src.billing.subscription_service import SubscriptionService
-from src.models.user import TokenResponse, UserCreate, UserLogin, User, ResetPassword, ChangePassword, VerificationData
+from src.models.user import TokenResponse, UserCreate, UserLogin, User, ResetPassword, ChangePassword, VerificationData, \
+    DeleteUserRequest
 from src.verify_service.resend_verify_service import check_verification_code, send_verification_code, \
     add_code_into_db
 
@@ -144,3 +146,22 @@ async def send_verification_code_route(verification_data: VerificationData, back
     code = await add_code_into_db(recipient=email)
     background_tasks.add_task(send_verification_code, email, code)
     return {"ok": True, "message": "Verification code sent"}
+
+@router.post("/users/delete")
+async def delete_user(data: DeleteUserRequest):
+    if ADMIN_CODE != data.code:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Incorrect information"
+        )
+
+    async with DatabaseConnection() as db:
+        await db.execute_one("PRAGMA foreign_keys = ON")
+        await db.execute_one(
+            "DELETE FROM users WHERE email = ?",
+            (data.email,),
+            commit=True,
+            raise_http=True
+        )
+
+    return {"ok": True, "message": "User deleted"}

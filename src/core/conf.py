@@ -29,6 +29,7 @@ CLICK_MERCHANT_USER_ID = os.getenv("CLICK_MERCHANT_USER_ID")
 CLICK_SECRET_KEY = os.getenv("CLICK_SECRET_KEY")
 ALLOWED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.heic', '.heif', ".mpo", ".pdf"}
 ENVIRONMENT = os.getenv("ENVIRONMENT")
+ADMIN_CODE = os.getenv("ADMIN_CODE")
 
 MAX_FILE_SIZE = 5 * 1024 * 1024
 # Order expiration (unpaid orders expire after this time)

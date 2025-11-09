@@ -96,6 +96,40 @@ class DatabaseConnection:
 
         await db.commit()
 
+    @staticmethod
+    async def migrate_ai_processing_operations():
+        async with aiosqlite.connect(DATABASE_URL) as db:
+            await db.execute('PRAGMA foreign_keys = OFF')
+
+            # Rename old table
+            await db.execute('ALTER TABLE ai_processing_operations RENAME TO ai_processing_operations_old')
+
+            # Create new table with CASCADE
+            await db.execute("""
+                CREATE TABLE ai_processing_operations (
+                    id INTEGER PRIMARY KEY,
+                    subscription_id TEXT NOT NULL,
+                    amount INTEGER NOT NULL,
+                    is_positive BOOLEAN NOT NULL DEFAULT TRUE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (subscription_id) REFERENCES subscriptions (id) ON DELETE CASCADE
+                )
+            """)
+
+            # Copy data
+            await db.execute("""
+                INSERT INTO ai_processing_operations 
+                SELECT * FROM ai_processing_operations_old
+            """)
+
+            # Drop old table
+            await db.execute('DROP TABLE ai_processing_operations_old')
+
+            await db.execute('PRAGMA foreign_keys = ON')
+            await db.commit()
+
+        print("Migration completed successfully!")
+
     def __init__(self, db_path: str = DATABASE_URL):
         self.db_path = db_path
         self.connection = None
@@ -218,7 +252,7 @@ class DatabaseConnection:
                     amount INTEGER NOT NULL,
                     is_positive BOOLEAN NOT NULL DEFAULT TRUE,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (subscription_id) REFERENCES subscriptions (id)
+                    FOREIGN KEY (subscription_id) REFERENCES subscriptions (id) ON DELETE CASCADE
                 )
             """)
 
@@ -231,6 +265,8 @@ class DatabaseConnection:
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             """)
+
+            await DatabaseConnection.migrate_ai_processing_operations()
 
             # Create indexes for better performance
             await db.execute("""
