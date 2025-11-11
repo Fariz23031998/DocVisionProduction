@@ -1,5 +1,5 @@
 {
-  "version": "1.1.2",
+  "version": "1.1.3",
   "last_updated": "2025-09-11 00:00",
   "translations": {
     "about.comingSoon": "Biz haqimizda ma'lumot tez orada mavjud bo‘ladi.",
@@ -310,6 +310,7 @@
     "index.processing.file": "Fayl qayta ishlanmoqda...",
     "index.dialog.deleteColumnDesc": "Haqiqatan ham \"{columnName}\" ustunini o‘chiraymi?\n",
     "index.dialog.deleteColumnDesc1": "Bu amalni bekor qilib bo‘lmaydi.",
+    "index.dialog.rowCount": "Bo'sh qatorlar soni",
 
     "login.button": "Kirish",
     "login.description": "Hisobingizga kirish uchun ma’lumotlarni kiriting",

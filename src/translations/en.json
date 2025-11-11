@@ -1,5 +1,5 @@
 {
-    "version": "1.1.2",
+    "version": "1.1.3",
     "last_updated": "2025-08-11 00:00",
     "translations": {
         "about.comingSoon": "Information about us will be available soon.",
@@ -314,6 +314,7 @@
         "index.processing.file": "Processing file...",
         "index.dialog.deleteColumnDesc": "Are you sure you want to delete the column \"{columnName}\"?",
         "index.dialog.deleteColumnDesc1": "This action cannot be undone.",
+        "index.dialog.rowCount": "Number of blank lines",
 
         "login.button": "Login",
         "login.description": "Enter your credentials to access your account",

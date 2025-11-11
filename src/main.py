@@ -20,7 +20,7 @@ app = FastAPI(
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8080", "https://docvision.uz"],
+    allow_origins=["http://localhost:8080", "https://docvision.uz", "*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
