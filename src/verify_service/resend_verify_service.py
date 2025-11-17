@@ -22,7 +22,7 @@ VERIFICATION_EMAIL = F"no-reply@{RESEND_EMAIL_FROM}"
 async def add_code_into_db(recipient: str):
     async with DatabaseConnection() as db:
         code = str(randint(100000, 999999))
-        ten_min_ago = datetime.utcnow() - timedelta(minutes=3)
+        ten_min_ago = datetime.utcnow() - timedelta(minutes=0)
         last_code = await db.fetch_one(
             query="SELECT created_at FROM verification_codes WHERE created_at > ? AND recipient = ?",
             params=(ten_min_ago, recipient),

@@ -1,9 +1,13 @@
 from datetime import datetime
-from fastapi import APIRouter, Depends
+
+from fastapi import APIRouter, Depends, HTTPException
+from starlette.status import HTTP_400_BAD_REQUEST
 
 from src.auth.user import UserService
+from src.core.conf import ADMIN_CODE
+from src.core.db import DatabaseConnection
 from src.core.security import get_current_user
-from src.models.user import User, UserUpdate
+from src.models.user import User, UserUpdate, DeleteUserRequest
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -26,4 +30,23 @@ async def protected_route(current_user: User = Depends(get_current_user)):
         "user_id": current_user.id,
         "timestamp": datetime.utcnow()
     }
+
+@router.post("/users/delete")
+async def delete_user(data: DeleteUserRequest):
+    if ADMIN_CODE != data.code:
+        raise HTTPException(
+            status_code=HTTP_400_BAD_REQUEST,
+            detail="Incorrect information"
+        )
+
+    async with DatabaseConnection() as db:
+        await db.execute_one("PRAGMA foreign_keys = ON")
+        await db.execute_one(
+            "DELETE FROM users WHERE email = ?",
+            (data.email,),
+            commit=True,
+            raise_http=True
+        )
+
+    return {"ok": True, "message": "User deleted"}
 

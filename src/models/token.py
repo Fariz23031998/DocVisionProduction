@@ -1,8 +1,11 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class RegosTokenCreateUpdate(BaseModel):
-    integration_token: str
+    token: str = Field(..., min_length=32, max_length=32)
+
+class RegosAuthToken(BaseModel):
+    token: str = Field(..., min_length=32, max_length=32)
 
 class RegosToken(BaseModel):
     token_id: int

@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Request, HTTPException, Depends
 
 from src.auth.auth import get_regos_token
@@ -6,6 +8,8 @@ from src.core.regos_api import regos_async_api_request
 from src.core.security import get_current_user
 from src.models.regos_additional import RegosBarcodeBatchAdd, RegosProductBatchEdit
 from src.models.user import User
+
+logger = logging.getLogger("DocVision")
 
 router = APIRouter(prefix="/regos", tags=["Regos"])
 

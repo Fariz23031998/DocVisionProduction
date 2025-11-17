@@ -9,10 +9,8 @@ from src.utils.helper import encrypt_token
 
 router = APIRouter(prefix="/tokens", tags=["Tokens"])
 
-@router.post("/regos/upsert")
-async def upsert_regos_token(token_data: RegosTokenCreateUpdate, current_user: User = Depends(get_current_user)):
-    user_id = current_user.id
-    integration_token = token_data.integration_token
+async def upsert_regos_token(token_data: RegosTokenCreateUpdate, user_id: str):
+    integration_token = token_data.token
     encrypted_token = encrypt_token(integration_token)
     async with DatabaseConnection() as db:
         # This will raise HTTPException automatically on error
@@ -23,8 +21,19 @@ async def upsert_regos_token(token_data: RegosTokenCreateUpdate, current_user: U
                 ON CONFLICT(user_id) 
                 DO UPDATE SET integration_token = excluded.integration_token
             """,
-            params=(user_id, encrypted_token)
+            params=(user_id, encrypted_token),
+            commit=True,
+            raise_http=True
         )
+
+    return result
+
+
+
+@router.post("/regos/upsert")
+async def upsert_regos_token_endpoint(token_data: RegosTokenCreateUpdate, current_user: User = Depends(get_current_user)):
+    user_id = current_user.id
+    result = await upsert_regos_token(token_data, user_id)
 
     return {
         "message": "Token created or updated successfully",

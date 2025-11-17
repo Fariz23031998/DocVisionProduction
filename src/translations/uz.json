@@ -1,5 +1,5 @@
 {
-  "version": "1.1.3",
+  "version": "1.1.4",
   "last_updated": "2025-09-11 00:00",
   "translations": {
     "about.comingSoon": "Biz haqimizda ma'lumot tez orada mavjud bo‘ladi.",
@@ -264,7 +264,7 @@
     "index.toast.pricesRecalculatedDesc": "Narxlar qayta hisoblandi: {count}",
     "index.toast.columnAddedWithCalc": "Ustun \"{columnName}\" narxlarni avtomatik hisoblash bilan qo‘shildi",
     "index.toast.columnAddedDesc": "Ustun \"{columnName}\" qo‘shildi",
-    "index.toast.tableCreatedDesc": "{columnCount} ta ustun va 10 ta bo‘sh qator bilan jadval yaratildi",
+    "index.toast.tableCreatedDesc": "{columnCount} ta ustun va {rowCount} ta bo‘sh qator bilan jadval yaratildi",
     "index.toast.barcodesAddedDesc": "Qo‘shilgan shtrixkodlar soni: {count}",
     "index.toast.addBarcodesError": "Shtrixkodlarni qo‘shib bo‘lmadi",
     "index.toast.formulaError": "Formula xatosi",
@@ -311,13 +311,17 @@
     "index.dialog.deleteColumnDesc": "Haqiqatan ham \"{columnName}\" ustunini o‘chiraymi?\n",
     "index.dialog.deleteColumnDesc1": "Bu amalni bekor qilib bo‘lmaydi.",
     "index.dialog.rowCount": "Bo'sh qatorlar soni",
+    "index.tabs.defaultName": "Tab 1",
+    "index.tabs.importedData": "Import qilingan ma’lumotlar",
+    "index.tabs.loading": "Ish maydoni yuklanmoqda...",
+    "index.tabs.table": "Tab",
 
     "login.button": "Kirish",
-    "login.description": "Hisobingizga kirish uchun ma’lumotlarni kiriting",
+    "login.description": "Akkauntingizga kirish uchun ma’lumotlarni kiriting",
     "login.fillAllFields": "Iltimos, barcha maydonlarni to‘ldiring",
     "login.forgotPassword": "Parolni unutdingizmi?",
     "login.loggingIn": "Tizimga kirilmoqda...",
-    "login.noAccount": "Hisob yo‘qmi?",
+    "login.noAccount": "Akkaunt yo‘qmi?",
     "login.password": "Parol",
     "login.register": "Ro‘yxatdan o‘tish",
     "login.successMessage": "Siz tizimga muvaffaqiyatli kirdingiz",
@@ -449,7 +453,7 @@
     "purchaseDocumentSelector.vatCalculationType": "QQS hisoblash turi",
     "purchaseDocumentSelector.vatExcluded": "QQS kiritilmagan",
     "purchaseDocumentSelector.vatIncluded": "QQS bilan",
-    "register.accountCreated": "Hisobingiz muvaffaqiyatli yaratildi",
+    "register.accountCreated": "Akkaunt muvaffaqiyatli yaratildi",
     "register.changeEmail": "Emailni o‘zgartirish",
     "register.codeSent": "Tasdiqlash kodi emailingizga yuborildi",
     "register.createAccount": "Akkaunt yaratish",
@@ -459,7 +463,7 @@
     "register.fillAllFields": "Iltimos, barcha maydonlarni to‘ldiring",
     "register.fullName": "To‘liq ism",
     "register.fullNamePlaceholder": "Ivan Ivanov",
-    "register.hasAccount": "Hisobingiz bormi?",
+    "register.hasAccount": "Akkauntingiz bormi?",
     "register.login": "Kirish",
     "register.password": "Parol",
     "register.sendCode": "Tasdiqlash kodini yuborish",
@@ -595,6 +599,15 @@
     "docs.tips.title": "Foydali maslahatlar",
     "docs.title": "Foydalanuvchi qo‘llanmasi",
     "docs.welcome.description": "Ushbu dastur sizga ombor, mahsulotlar va xarid hujjatlarini boshqarishda yordam beradi. Quyidagi yo‘riqnomada barcha kerakli ma’lumotlar mavjud.",
-    "docs.welcome.title": "Xush kelibsiz! 👋"
+    "docs.welcome.title": "Xush kelibsiz! 👋",
+
+    "header.profile.minCharError": "Kamida 7 ta belgi bo‘lishi kerak",
+    "header.profile.maxCharError": "Maksimal 50 ta belgi mumkin",
+    "header.profile.mustHaveLetterError": "Kamida bitta harf bo‘lishi shart",
+    "header.profile.phone": "Telefon",
+    "header.profile.username": "foydalanuvchi nomi",
+    "header.profile.username.placeholder": "Foydalanuvchi nomini kiriting",
+    "login.form.title": "Email, foydalanuvchi nomi yoki telefon raqami",
+    "login.form.placeholder": "user@example.com, foydalanuvchi nomi yoki +998999999999"
   }
 }

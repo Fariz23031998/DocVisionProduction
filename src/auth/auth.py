@@ -1,3 +1,6 @@
+import asyncio
+import logging
+
 import bcrypt
 from datetime import datetime, timedelta
 from typing import Dict, Any
@@ -7,6 +10,9 @@ from jose import JWTError, jwt
 from src.core.conf import SESSION_EXPIRE_DAYS, SECRET_KEY, ALGORITHM
 from src.core.db import DatabaseConnection
 from src.utils.helper import decrypt_token
+
+
+logger = logging.getLogger("DocVision")
 
 
 class AuthService:
@@ -37,10 +43,10 @@ class AuthService:
             UnicodeEncodeError: If password contains characters that cannot be UTF-8 encoded
 
         Example:
-            >>> hashed_pw = "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4w8nPv2K4e"
-            >>> AuthService.verify_password("mypassword", hashed_pw)
+            # >>> hashed_pw = "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj4w8nPv2K4e"
+            # >>> AuthService.verify_password("mypassword", hashed_pw)
             True
-            >>> AuthService.verify_password("wrongpassword", hashed_pw)
+            # >>> AuthService.verify_password("wrongpassword", hashed_pw)
             False
 
         Note:
@@ -78,9 +84,8 @@ class AuthService:
             else:
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Could not validate credentials"
+                    detail=f"Could not validate credentials: {e}"
                 )
-
 
 
 async def get_regos_token(user_id: str) -> str:
@@ -97,7 +102,6 @@ async def get_regos_token(user_id: str) -> str:
         str: string containing regos token
 
     """
-
     async with DatabaseConnection() as db:
         # This will raise HTTPException automatically if not found or on error
         regos_tokens = await db.fetch_one(
@@ -118,3 +122,5 @@ async def email_exists(email: str) -> bool:
             allow_none=True
         )
     return result is not None
+
+

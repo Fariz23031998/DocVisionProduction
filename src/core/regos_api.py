@@ -78,4 +78,3 @@ async def regos_async_api_request(endpoint: str, request_data: dict | list, toke
             status_code=502,  # Bad Gateway - external service error
             detail=f"REGOS API client error: {str(e)}"
         )
-

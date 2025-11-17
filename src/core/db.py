@@ -164,11 +164,17 @@ class DatabaseConnection:
             await db.execute("""
                   CREATE TABLE IF NOT EXISTS users (
                       id TEXT PRIMARY KEY,
-                      email TEXT UNIQUE NOT NULL,
+                      username TEXT UNIQUE NOT NULL,
+                      email TEXT UNIQUE,
+                      phone TEXT UNIQUE,
                       full_name TEXT NOT NULL,
                       password_hash TEXT NOT NULL,
                       is_active BOOLEAN DEFAULT TRUE,
-                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                      CHECK(
+                          (email IS NOT NULL AND email <> '') OR 
+                          (phone IS NOT NULL AND phone <> '')
+                      )
                   )
               """)
 

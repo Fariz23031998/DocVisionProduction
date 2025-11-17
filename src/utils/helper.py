@@ -400,3 +400,27 @@ def write_json_file(
         logger.error(f"Unexpected error writing JSON to {file_path}: {e}")
         return False
 
+
+import secrets
+import string
+
+
+def generate_password(min_len: int = 10, max_len: int = 15) -> str:
+    lower = string.ascii_lowercase
+    digits = string.digits
+    all_chars = lower + string.ascii_uppercase + digits + string.punctuation
+
+    # Ensure minimum required characters
+    password_chars = [
+        secrets.choice(lower),   # at least one lowercase letter
+        secrets.choice(digits),  # at least one digit
+    ]
+
+    # Remaining length random
+    remaining_length = secrets.choice(range(min_len, max_len + 1)) - len(password_chars)
+    password_chars.extend(secrets.choice(all_chars) for _ in range(remaining_length))
+
+    # Shuffle securely to avoid predictable positions
+    secrets.SystemRandom().shuffle(password_chars)
+
+    return ''.join(password_chars)

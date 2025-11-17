@@ -1,15 +1,18 @@
 from fastapi import HTTPException, APIRouter, Depends, BackgroundTasks
 from fastapi import status
 
+from src.api.v1.routes.tokens import upsert_regos_token
 from src.auth.auth import AuthService, email_exists
 from src.auth.session import SessionManager
 from src.auth.user import UserService
-from src.core.conf import ADMIN_CODE
 from src.core.db import DatabaseConnection
+from src.core.regos_api import regos_async_api_request
 from src.core.security import get_current_user, get_session_id_from_token
 from src.billing.subscription_service import SubscriptionService
-from src.models.user import TokenResponse, UserCreate, UserLogin, User, ResetPassword, ChangePassword, VerificationData, \
-    DeleteUserRequest
+from src.models.token import RegosAuthToken, RegosTokenCreateUpdate
+from src.models.user import TokenResponse, UserCreateRegos, UserLogin, User, ResetPassword, ChangePassword, \
+    VerificationData, UserCreate
+from src.utils.helper import generate_password
 from src.verify_service.resend_verify_service import check_verification_code, send_verification_code, \
     add_code_into_db
 
@@ -39,7 +42,7 @@ async def register(user_data: UserCreate):
 @router.post("/login", response_model=TokenResponse)
 async def login(login_data: UserLogin):
     """Login user"""
-    user = await UserService.authenticate_user(login_data.email, login_data.password)
+    user = await UserService.authenticate_user(login_data.login, login_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -147,21 +150,77 @@ async def send_verification_code_route(verification_data: VerificationData, back
     background_tasks.add_task(send_verification_code, email, code)
     return {"ok": True, "message": "Verification code sent"}
 
-@router.post("/users/delete")
-async def delete_user(data: DeleteUserRequest):
-    if ADMIN_CODE != data.code:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Incorrect information"
+@router.post("/regos-integration", response_model=TokenResponse)
+async def authenticate_with_regos(data: RegosAuthToken):
+    regos_token = data.token
+
+    regos_result = await regos_async_api_request(
+        endpoint="User/Get",
+        token=regos_token,
+        request_data={
+            "ids": [1, ],
+        }
+    )
+
+    regos_user_info = regos_result["result"][0]
+    phone = regos_user_info["main_phone"]
+    full_name = regos_user_info["full_name"]
+    email = regos_user_info["email"]
+
+    if not phone.startswith("+"): phone = "+" + phone
+    user = await UserService.get_user_by_phone(phone)
+
+    """Login to existing user"""
+    if user is not None:
+        user_id = user.id
+        await upsert_regos_token(
+            user_id=user_id,
+            token_data=RegosTokenCreateUpdate(
+                token=regos_token,
+            )
         )
 
-    async with DatabaseConnection() as db:
-        await db.execute_one("PRAGMA foreign_keys = ON")
-        await db.execute_one(
-            "DELETE FROM users WHERE email = ?",
-            (data.email,),
-            commit=True,
-            raise_http=True
+        session = await SessionManager.create_session(user_id)
+        token = AuthService.create_access_token(user_id, session.session_id)
+
+        return TokenResponse(
+            access_token=token,
+            token_type="bearer",
+            expires_at=session.expires_at,
+            user=user
         )
 
-    return {"ok": True, "message": "User deleted"}
+    password = generate_password()
+    user_data = UserCreateRegos(
+        phone=phone,
+        password=password,
+        full_name=full_name,
+    )
+
+    if email: user_data.email = email
+
+    """Register a new user"""
+    new_user = await UserService.create_user(user_data=user_data, username_gen_type="fullname")
+    new_user_id = new_user.id
+    new_session = await SessionManager.create_session(new_user_id)
+    new_token = AuthService.create_access_token(new_user_id, new_session.session_id)
+
+    # Create 7-day free trial for new user
+    await SubscriptionService.create_subscription(new_user_id, plan='free-trial')
+
+    await upsert_regos_token(
+        user_id=new_user_id,
+        token_data=RegosTokenCreateUpdate(
+            token=regos_token,
+        )
+    )
+
+    return TokenResponse(
+        access_token=new_token,
+        token_type="bearer",
+        expires_at=new_session.expires_at,
+        user=new_user
+    )
+
+
+
