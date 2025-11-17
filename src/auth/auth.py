@@ -106,13 +106,11 @@ async def get_regos_token(user_id: str) -> str:
         # This will raise HTTPException automatically if not found or on error
         regos_tokens = await db.fetch_one(
             query="SELECT integration_token FROM regos_tokens WHERE user_id = ?",
-            params=(user_id,)
+            params=(user_id,),
+            raise_http=True
         )
 
-    # Convert Row to dict and decrypt sensitive fields
-    decrypted_token = decrypt_token(regos_tokens[0])
-
-    return decrypted_token
+    return regos_tokens[0]
 
 async def email_exists(email: str) -> bool:
     async with DatabaseConnection() as db:

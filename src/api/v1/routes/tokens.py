@@ -11,7 +11,6 @@ router = APIRouter(prefix="/tokens", tags=["Tokens"])
 
 async def upsert_regos_token(token_data: RegosTokenCreateUpdate, user_id: str):
     integration_token = token_data.token
-    encrypted_token = encrypt_token(integration_token)
     async with DatabaseConnection() as db:
         # This will raise HTTPException automatically on error
         result = await db.execute_one(
@@ -21,14 +20,12 @@ async def upsert_regos_token(token_data: RegosTokenCreateUpdate, user_id: str):
                 ON CONFLICT(user_id) 
                 DO UPDATE SET integration_token = excluded.integration_token
             """,
-            params=(user_id, encrypted_token),
+            params=(user_id, integration_token),
             commit=True,
             raise_http=True
         )
 
     return result
-
-
 
 @router.post("/regos/upsert")
 async def upsert_regos_token_endpoint(token_data: RegosTokenCreateUpdate, current_user: User = Depends(get_current_user)):
@@ -44,12 +41,11 @@ async def upsert_regos_token_endpoint(token_data: RegosTokenCreateUpdate, curren
 async def add_regos_token(token_data: RegosTokenCreateUpdate, current_user: User = Depends(get_current_user)):
     user_id = current_user.id
     integration_token = token_data.integration_token
-    encrypted_token = encrypt_token(integration_token)
     async with DatabaseConnection() as db:
         # This will raise HTTPException automatically on error
         result = await db.execute_one(
             query="INSERT INTO regos_tokens (user_id, integration_token) VALUES (?, ?)",
-            params=(user_id, encrypted_token)
+            params=(user_id, integration_token)
         )
 
     return {
@@ -62,24 +58,17 @@ async def add_regos_token(token_data: RegosTokenCreateUpdate, current_user: User
 @router.patch("/regos")
 async def update_regos_token(data: RegosTokenCreateUpdate, current_user: User = Depends(get_current_user)):
     user_id = current_user.id
-    encrypted_token = encrypt_token(data.integration_token)
     async with DatabaseConnection() as db:
         # This will raise HTTPException automatically on error
         result = await db.execute_one(
             query="UPDATE regos_tokens SET integration_token = ? WHERE user_id = ?",
-            params=(encrypted_token, user_id)
+            params=(data.integration_token, user_id)
         )
 
     return {
         "message": "Token updated successfully",
         "rows_affected": result["rows_affected"]
     }
-
-
-@router.get("/regos")
-async def read_regos_token(current_user: User = Depends(get_current_user)):
-    return await get_regos_token(user_id=current_user.id)
-
 
 @router.delete("/regos")
 async def delete_token(current_user: User = Depends(get_current_user)):

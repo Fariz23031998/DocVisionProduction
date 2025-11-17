@@ -1,5 +1,5 @@
 {
-    "version": "1.1.4",
+    "version": "1.1.5",
     "last_updated": "2025-08-11 00:00",
     "translations": {
         "about.comingSoon": "Information about us will be available soon.",
@@ -622,6 +622,7 @@
         "header.profile.username": "username",
         "header.profile.username.placeholder": "Enter your username",
         "login.form.title": "Email, Username, or Phone Number",
-        "login.form.placeholder": "user@example.com, username, or +998999999999"
+        "login.form.placeholder": "user@example.com, username, or +998999999999",
+        "login.button.regos": "Log in with Regos"
     }
 }
