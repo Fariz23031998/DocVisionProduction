@@ -272,6 +272,19 @@ class DatabaseConnection:
                 )
             """)
 
+
+            await db.execute("""
+                CREATE TABLE IF NOT EXISTS regos_changes (
+                    id INTEGER PRIMARY KEY,
+                    version INTEGER NOT NULL,
+                    event_id TEXT NOT NULL,
+                    connected_integration_id TEXT NOT NULL,
+                    endpoint TEXT NOT NULL,
+                    cdata TEXT NOT NULL,
+                    occured_at DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+
             # Create indexes for better performance
             await db.execute("""
                   CREATE INDEX IF NOT EXISTS idx_users_email ON users (email)

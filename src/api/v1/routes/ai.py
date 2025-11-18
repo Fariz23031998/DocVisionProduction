@@ -14,7 +14,7 @@ from src.ai_service.gemini_ai import extract_data, detect_excel_columns_gemini, 
 from src.billing.subscription_service import SubscriptionService
 from src.core.conf import ALLOWED_EXTENSIONS, MAX_FILE_SIZE
 from src.core.security import get_current_user
-from src.models.ai import ExcelColumnDetectionResponse, DetectColumnName, AIMatchRequest
+from src.models.ai import DetectColumnName, AIMatchRequest
 from src.models.user import User
 from src.utils.helper import compress_file
 

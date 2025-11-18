@@ -1,6 +1,6 @@
 import logging
+from fastapi import APIRouter, Request, Depends
 
-from fastapi import APIRouter, Request, HTTPException, Depends
 
 from src.auth.auth import get_regos_token
 from src.billing.subscription_service import SubscriptionService
@@ -9,9 +9,11 @@ from src.core.security import get_current_user
 from src.models.regos_additional import RegosBarcodeBatchAdd, RegosProductBatchEdit
 from src.models.user import User
 
+
 logger = logging.getLogger("DocVision")
 
 router = APIRouter(prefix="/regos", tags=["Regos"])
+
 
 @router.post("/barcodes/batch")
 async def batch_edit_regos_products(data: RegosBarcodeBatchAdd, current_user: User = Depends(get_current_user)):
@@ -50,7 +52,7 @@ async def batch_edit_regos_products(data: RegosProductBatchEdit, current_user: U
 
 
 @router.post("/proxy/{endpoint:path}")
-async def proxy_regos_request(endpoint: str, request: Request, current_user: User = Depends(get_current_user)):
+async def proxy_regos_request(endpoint: str, request: Request, since_version: int = 0, current_user: User = Depends(get_current_user)):
     """
     Transparent proxy endpoint that forwards any JSON body
     to the corresponding Regos API path.
@@ -64,6 +66,7 @@ async def proxy_regos_request(endpoint: str, request: Request, current_user: Use
     except Exception:
         data = {}
 
+
     result = await regos_async_api_request(
         endpoint=endpoint,
         request_data=data,
@@ -71,5 +74,7 @@ async def proxy_regos_request(endpoint: str, request: Request, current_user: Use
     )
 
     return result
+
+
 
 
