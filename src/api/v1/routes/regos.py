@@ -76,5 +76,3 @@ async def proxy_regos_request(endpoint: str, request: Request, since_version: in
     return result
 
 
-
-

@@ -37,7 +37,7 @@ ORDER_EXPIRATION_HOURS = 24
 # Webhook secret key (for validating webhook requests)
 WEBHOOK_SECRET = "your-secret-key-here"  # Change this in production!
 CLICK_PAYMENT_BASE_URL = "https://my.click.uz/services/pay"
-HOME_URL = "docvision.uz"
+HOME_URL = "https://docvision.uz"
 
 PRICING = {
     'standard': 1000,

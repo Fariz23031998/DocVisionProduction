@@ -48,33 +48,37 @@ async def regos_async_api_request(endpoint: str, request_data: dict | list, toke
 
                     # Check if the API returned an error in the response body
                     if not data.get("ok"):
-                        error_info = data.get("result", {})
-                        error_code = error_info.get("error", "Unknown")
-                        error_desc = error_info.get("description", "Unknown error")
+                        err_result = data.get("result", {})
+                        error_code = err_result.get("error", "Unknown")
+                        error_desc = err_result.get("description", "Unknown error")
+                        err_msg = f"REGOS API error: {error_code} - {error_desc}"
 
-                        logger.error(f"REGOS API error: {error_code} - {error_desc}")
-                        raise HTTPException(
-                            status_code=400,  # Bad Request - business logic error
-                            detail=f"REGOS API error {error_code}: {error_desc}"
-                        )
+                        logger.error(err_msg)
+                        raise HTTPException(status_code=400, detail=err_msg)
+
+                    # Check if the API returned a valid response
+                    result = data.get("result", "There is no result in response")
+                    if not isinstance(result, (dict, list)):
+                        raise HTTPException(status_code=502, detail=f"Invalid response from REGOS API: {result}")
 
                     return data
+
                 else:
-                    logger.info(f"Error: API returned status code {response.status}")
-                    raise HTTPException(
-                        status_code=502,  # Bad Gateway - external API error
-                        detail=f"REGOS API returned status code {response.status}"
-                    )
+                    err_msg = f"Error: API returned status code {response.status}"
+                    logger.info(err_msg)
+                    raise HTTPException(status_code=502, detail=f"REGOS API returned status code {response.status}")
 
     except asyncio.TimeoutError:
-        logger.error(f"Error: Request timed out after {timeout_seconds} seconds")
-        raise HTTPException(
-            status_code=504,  # Gateway Timeout
-            detail=f"REGOS API request timed out after {timeout_seconds} seconds"
-        )
+        err_msg = f"REGOS API Error: Request timed out after {timeout_seconds} seconds"
+        logger.error(err_msg)
+        raise HTTPException(status_code=504, detail=err_msg)
+
     except aiohttp.ClientError as e:
-        logger.error(f"Error: Client error occurred - {str(e)}")
-        raise HTTPException(
-            status_code=502,  # Bad Gateway - external service error
-            detail=f"REGOS API client error: {str(e)}"
-        )
+        err_msg = f"REGOS API Error: Client error occurred - {str(e)}"
+        logger.error(err_msg)
+        raise HTTPException(status_code=502, detail=err_msg)
+
+    except Exception as e:
+        err_msg = f"REGOS API Error: {e}"
+        logger.error(err_msg)
+        raise HTTPException(status_code=502, detail=err_msg)
