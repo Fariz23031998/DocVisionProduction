@@ -1,6 +1,6 @@
 {
-  "version": "1.1.5",
-  "last_updated": "2025-09-11 00:00",
+  "version": "1.1.6",
+  "last_updated": "2025-25-11 00:00",
   "translations": {
     "about.comingSoon": "Biz haqimizda ma'lumot tez orada mavjud bo‘ladi.",
     "checkout.checkInfo": "To‘lovdan oldin ma’lumotni tekshiring",
@@ -609,6 +609,8 @@
     "header.profile.username.placeholder": "Foydalanuvchi nomini kiriting",
     "login.form.title": "Email, foydalanuvchi nomi yoki telefon raqami",
     "login.form.placeholder": "user@example.com, foydalanuvchi nomi yoki +998999999999",
-    "login.button.regos": "Regos bilan tizimga kiring"
+    "login.button.regos": "Regos bilan tizimga kiring",
+    "productSearch.title": "Mahsulot qidiruvi",
+    "productSearch.startTyping": "Qidirish uchun yozishni boshlang"
   }
 }

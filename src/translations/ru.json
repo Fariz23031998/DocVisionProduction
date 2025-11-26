@@ -1,6 +1,6 @@
 {
-    "version": "1.1.5",
-    "last_updated": "2025-08-11 00:00",
+    "version": "1.1.6",
+    "last_updated": "2025-25-11 00:00",
     "translations": {
         "about.comingSoon": "Информация о нас скоро будет доступна.",
 
@@ -621,6 +621,8 @@
         "header.profile.username.placeholder": "Введите имя пользователя",
         "login.form.title": "Email, имя пользователя или номер телефона",
         "login.form.placeholder": "user@example.com, имя пользователя или +998999999999",
-        "login.button.regos": "Войти через Regos"
+        "login.button.regos": "Войти через Regos",
+        "productSearch.title": "Поиск товара",
+        "productSearch.startTyping": "Начните вводить для поиска"
     }
 }

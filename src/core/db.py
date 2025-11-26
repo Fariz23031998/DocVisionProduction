@@ -162,20 +162,20 @@ class DatabaseConnection:
 
             # Create users table
             await db.execute("""
-                  CREATE TABLE IF NOT EXISTS users (
-                      id TEXT PRIMARY KEY,
-                      username TEXT UNIQUE NOT NULL,
-                      email TEXT UNIQUE,
-                      phone TEXT UNIQUE,
-                      full_name TEXT NOT NULL,
-                      password_hash TEXT NOT NULL,
-                      is_active BOOLEAN DEFAULT TRUE,
-                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                      CHECK(
-                          (email IS NOT NULL AND email <> '') OR 
-                          (phone IS NOT NULL AND phone <> '')
-                      )
-                  )
+                CREATE TABLE IF NOT EXISTS users (
+                    id TEXT PRIMARY KEY,
+                    username TEXT UNIQUE NOT NULL,
+                    email TEXT,
+                    phone TEXT,
+                    full_name TEXT NOT NULL,
+                    password_hash TEXT NOT NULL,
+                    is_active BOOLEAN DEFAULT TRUE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    CHECK(
+                        (email IS NOT NULL AND email <> '') OR 
+                        (phone IS NOT NULL AND phone <> '')
+                    )
+                );
               """)
 
             # Create sessions table
@@ -273,22 +273,18 @@ class DatabaseConnection:
             """)
 
 
-            await db.execute("""
-                CREATE TABLE IF NOT EXISTS regos_changes (
-                    id INTEGER PRIMARY KEY,
-                    version INTEGER NOT NULL,
-                    event_id TEXT NOT NULL,
-                    connected_integration_id TEXT NOT NULL,
-                    endpoint TEXT NOT NULL,
-                    cdata TEXT NOT NULL,
-                    occured_at DEFAULT CURRENT_TIMESTAMP
-                )
-            """)
-
             # Create indexes for better performance
             await db.execute("""
-                  CREATE INDEX IF NOT EXISTS idx_users_email ON users (email)
-              """)
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email_unique
+                    ON users(email)
+                    WHERE email IS NOT NULL AND email <> '';
+                """)
+
+            await db.execute("""
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_users_phone_unique
+                    ON users(phone)
+                    WHERE phone IS NOT NULL AND phone <> '';
+                """)
 
             await db.execute("""
                   CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions (user_id)
@@ -322,15 +318,6 @@ class DatabaseConnection:
                  CREATE INDEX IF NOT EXISTS idx_verification_codes_recipient ON verification_codes (recipient)
              """)
 
-            # Add missed column subscription_id in orders table
-            # await DatabaseConnection.add_column_with_fk_actions(
-            #     db=db,
-            #     table_name="orders",
-            #     column_name="subscription_id",
-            #     column_type="TEXT",
-            #     default_value="NULL",
-            #     foreign_key={"subscriptions": "id"}
-            # )
             await db.commit()
 
     async def fetch_one(
