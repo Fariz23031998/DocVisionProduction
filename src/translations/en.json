@@ -625,6 +625,7 @@
         "login.form.placeholder": "user@example.com, username, or +998999999999",
         "login.button.regos": "Log in with Regos",
         "productSearch.title": "Product search",
-        "productSearch.startTyping": "Start typing to search"
+        "productSearch.startTyping": "Start typing to search",
+        "index.settings.useFuzzySearch": "Use fuzzy search"
     }
 }

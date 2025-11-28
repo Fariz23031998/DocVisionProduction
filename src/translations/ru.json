@@ -623,6 +623,7 @@
         "login.form.placeholder": "user@example.com, имя пользователя или +998999999999",
         "login.button.regos": "Войти через Regos",
         "productSearch.title": "Поиск товара",
-        "productSearch.startTyping": "Начните вводить для поиска"
+        "productSearch.startTyping": "Начните вводить для поиска",
+        "index.settings.useFuzzySearch": "Использовать нечёткий поиск"
     }
 }

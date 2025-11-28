@@ -611,6 +611,7 @@
     "login.form.placeholder": "user@example.com, foydalanuvchi nomi yoki +998999999999",
     "login.button.regos": "Regos bilan tizimga kiring",
     "productSearch.title": "Mahsulot qidiruvi",
-    "productSearch.startTyping": "Qidirish uchun yozishni boshlang"
+    "productSearch.startTyping": "Qidirish uchun yozishni boshlang",
+    "index.settings.useFuzzySearch": "Loyqa qidiruvdan foydalanish"
   }
 }

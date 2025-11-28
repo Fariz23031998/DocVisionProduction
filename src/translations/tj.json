@@ -618,7 +618,8 @@
     "login.form.placeholder": "user@example.com, номи корбар, ё +998999999999",
     "login.button.regos": "Воридшавӣ бо Regos",
     "productSearch.title": "Ҷустуҷӯи маҳсулот",
-    "productSearch.startTyping": "Барои ҷустуҷӯ чоп карданро оғоз кунед"
+    "productSearch.startTyping": "Барои ҷустуҷӯ чоп карданро оғоз кунед",
+    "index.settings.useFuzzySearch": "Ҷустуҷӯи норавшанро истифода бурдан"
   }
 }
 
