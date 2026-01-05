@@ -558,7 +558,7 @@ class SubscriptionService:
             )
             if raise_http:
                 raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
+                    status_code=status.HTTP_402_PAYMENT_REQUIRED,
                     detail="Subscription is expired"
                 )
             return False
