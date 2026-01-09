@@ -1,6 +1,6 @@
 {
-  "version": "1.1.7",
-  "last_updated": "2025-25-11 00:00",
+  "version": "1.1.8",
+  "last_updated": "2026-01-09 00:00",
   "translations": {
     "about.comingSoon": "Biz haqimizda ma'lumot tez orada mavjud bo‘ladi.",
     "checkout.checkInfo": "To‘lovdan oldin ma’lumotni tekshiring",
@@ -87,7 +87,6 @@
     "header.token.error.failed": "Tokenni saqlab bo‘lmadi",
     "header.token.success": "Token muvaffaqiyatli saqlandi",
     "header.documentation": "Yo'riqnoma",
-
     "index.button.add": "Qo‘shish",
     "index.button.addManually": "Qo‘lda qo‘shish",
     "index.button.afterProcessing": "Fayl qayta ishlangandan so‘ng",
@@ -254,7 +253,7 @@
     "index.button.addBarcodes": "Shtrixkodlarni qo‘shish",
     "index.button.addingBarcodes": "Qo‘shilmoqda...",
     "index.toast.matchingComplete": "Moslashtirish tugallandi",
-    "index.toast.matchingCompleteDesc": "Moslashtirilgan mahsulotlar: {matchedCount} / {totalCount}",
+    "index.toast.matchingCompleteDesc": "Moslashtirilgan mahsulotlar: {matchedCount}",
     "index.toast.groupAppliedDesc": "Guruh \"{groupPath}\" barcha qatorlarga qo‘llandi",
     "index.toast.unitAppliedDesc": "O‘lchov birligi \"{unitName}\" barcha qatorlarga qo‘llandi",
     "index.toast.columnTypeResetDesc": "Ustun \"{key}\" endi ko‘rsatilmagan",
@@ -315,7 +314,6 @@
     "index.tabs.importedData": "Import qilingan ma’lumotlar",
     "index.tabs.loading": "Ish maydoni yuklanmoqda...",
     "index.tabs.table": "Tab",
-
     "login.button": "Kirish",
     "login.description": "Akkauntingizga kirish uchun ma’lumotlarni kiriting",
     "login.fillAllFields": "Iltimos, barcha maydonlarni to‘ldiring",
@@ -399,7 +397,6 @@
     "plans.title": "Tarif rejalari",
     "plans.features.productManagement": "SI yordamida professional mahsulotlarni boshqarish",
     "plans.features.PriorityOnlineSupport": "Professional texnik yordam",
-
     "productGroupSelector.create": "Yaratish",
     "productGroupSelector.createError": "Guruhni yaratib bo‘lmadi",
     "productGroupSelector.createGroup": "Guruh yaratish",
@@ -503,7 +500,6 @@
     "unitSelector.selectUnitDescription": "Mahsulot uchun o‘lchov birligini tanlang",
     "unitSelector.unitsOfMeasurement": "O‘lchov birliglari",
     "unitSelector.unitsRefreshed": "O‘lchov birliglari yangilandi",
-
     "docs.features.groups.groups.step1": "Mahsulotlarni toifalar bo‘yicha tartiblang",
     "docs.features.groups.groups.step2": "'Mahsulot guruhlari' tugmasini bosing va toifalarni boshqaring",
     "docs.features.groups.groups.title": "Mahsulot guruhlari:",
@@ -600,7 +596,6 @@
     "docs.title": "Foydalanuvchi qo‘llanmasi",
     "docs.welcome.description": "Ushbu dastur sizga ombor, mahsulotlar va xarid hujjatlarini boshqarishda yordam beradi. Quyidagi yo‘riqnomada barcha kerakli ma’lumotlar mavjud.",
     "docs.welcome.title": "Xush kelibsiz! 👋",
-
     "header.profile.minCharError": "Kamida 7 ta belgi bo‘lishi kerak",
     "header.profile.maxCharError": "Maksimal 50 ta belgi mumkin",
     "header.profile.mustHaveLetterError": "Kamida bitta harf bo‘lishi shart",
@@ -612,6 +607,25 @@
     "login.button.regos": "Regos bilan tizimga kiring",
     "productSearch.title": "Mahsulot qidiruvi",
     "productSearch.startTyping": "Qidirish uchun yozishni boshlang",
-    "index.settings.useFuzzySearch": "Loyqa qidiruvdan foydalanish"
+    "index.settings.useFuzzySearch": "Loyqa qidiruvdan foydalanish",
+
+    "common.add": "Qoʻshish",
+    "index.button.confirm": "Tasdiqlash",
+    "index.button.sum": "Summa",
+    "index.dialog.deleteRowDescription": "Haqiqatan ham ushbu qatorni jadvaldan oʻchirib tashlamoqchimisiz?",
+    "index.dialog.deleteRowTitle": "Qatorni oʻchirish",
+    "index.dialog.unmatchDescription": "Haqiqatan ham ushbu mahsulotni moslikdan chiqarmoqchimisiz?",
+    "index.dialog.unmatchTitle": "Moslikni bekor qilish",
+    "index.label.total": "Jami",
+    "index.search.placeholder": "Jadval boʻyicha qidirish...",
+    "index.settings.defaultPriceType": "Standart narx turi:",
+    "index.tooltip.calculateSum": "Summani hisoblash (narx × miqdor)",
+    "index.tooltip.exportToExcel": "Jadvalni Excelga eksport qilish",
+    "index.tooltip.unmatch": "Moslikni bekor qilish",
+    "productSearch.addProduct": "Mahsulot qoʻshish",
+    "purchaseDocumentSelector.actions": "Harakatlar",
+    "purchaseDocumentSelector.documentsRefreshed": "Hujjatlar yangilandi.",
+    "purchaseDocumentSelector.edit": "Tahrirlash",
+    "purchaseDocumentSelector.perform": "Bajarish"
   }
 }

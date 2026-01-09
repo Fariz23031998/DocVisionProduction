@@ -1,6 +1,6 @@
 {
-  "version": "1.1.7",
-  "last_updated": "2025-25-11 00:00",
+  "version": "1.1.8",
+  "last_updated": "2026-01-09 00:00",
   "translations": {
     "about.comingSoon": "Маълумот дар бораи мо ба зудӣ дастрас мешавад.",
     "checkout.checkInfo": "Маълумотро пеш аз пардохт санҷед",
@@ -253,7 +253,7 @@
     "index.button.addBarcodes": "Илова кардани баркодҳо",
     "index.button.addingBarcodes": "Илова шуда истодааст...",
     "index.toast.matchingComplete": "Мутобиқсозӣ анҷом ёфт",
-    "index.toast.matchingCompleteDesc": "Молҳои мутобиқшуда: {matchedCount} аз {totalCount}",
+    "index.toast.matchingCompleteDesc": "Молҳои мутобиқшуда: {matchedCount}",
     "index.toast.groupAppliedDesc": "Гурӯҳи \"{groupPath}\" ба ҳамаи сатрҳо татбиқ карда шуд",
     "index.toast.unitAppliedDesc": "Воҳиди чени \"{unitName}\" ба ҳамаи сатрҳо татбиқ карда шуд",
     "index.toast.columnTypeResetDesc": "Сутуни \"{key}\" акнун номуайян аст",
@@ -314,7 +314,6 @@
     "index.tabs.importedData": "Маълумоти воридшуда",
     "index.tabs.loading": "Боргирии фазои корӣ...",
     "index.tabs.table": "Варақа",
-
     "login.button": "Ворид шудан",
     "login.description": "Маълумоти худро ворид кунед то ба аккаунт дастрасӣ пайдо кунед",
     "login.fillAllFields": "Лутфан ҳамаи майдонҳоро пур кунед",
@@ -325,10 +324,8 @@
     "login.register": "Қайд шудан",
     "login.successMessage": "Шумо бомуваффақият ворид шудед",
     "login.title": "Хуш омадед",
-
     "notFound.message": "Оҳ! Саҳифа ёфт нашуд",
     "notFound.returnHome": "Бозгашт ба саҳифаи асосӣ",
-
     "partners.account": "Ҳисоби бонкӣ",
     "partners.address": "Суроға",
     "partners.bank": "Бонк",
@@ -359,7 +356,6 @@
     "partners.title": "Шарикон",
     "partners.updated": "Шарик навсозӣ шуд",
     "partners.vatIndex": "Индекси AAB",
-
     "paymentStatus.amount": "Маблағ",
     "paymentStatus.checkButton": "Санҷиши пардохт",
     "paymentStatus.checkError": "Санҷиши ҳолати пардохт ношуд шуд",
@@ -381,7 +377,6 @@
     "paymentStatus.subtitle": "Ҳолати фармоиши шумо",
     "paymentStatus.title": "Тасдиқи пардохт",
     "paymentStatus.transactionId": "Рақами транзаксия",
-
     "payments.amount": "Маблағ",
     "payments.date": "Сана",
     "payments.empty": "Таърихи пардохтҳо холӣ аст.",
@@ -391,7 +386,6 @@
     "payments.statusCanceled": "Бекор карда шуд",
     "payments.statusSuccess": "Бомуваффақият",
     "payments.title": "Пардохтҳо",
-
     "plans.credits": "кредит",
     "plans.dailyRegeneration": "Барқарорсозии ҳаррӯза",
     "plans.features": "Хусусиятҳо:",
@@ -403,7 +397,6 @@
     "plans.title": "Тарифҳои нархгузорӣ",
     "plans.features.productManagement": "Идоракунии касбии маҳсулот бо AI",
     "plans.features.PriorityOnlineSupport": "Дастгирии техникии касбӣ",
-
     "productGroupSelector.create": "Эҷод кардан",
     "productGroupSelector.createError": "Эҷоди гурӯҳ ношуд шуд",
     "productGroupSelector.createGroup": "Эҷоди гурӯҳ",
@@ -424,7 +417,6 @@
     "productGroupSelector.selectGroup": "Интихоби гурӯҳ",
     "productGroupSelector.selectOrManageGroups": "Гурӯҳро интихоб кунед, нав илова кунед ё мавҷударо таҳрир кунед",
     "productGroupSelector.updateError": "Навсозии гурӯҳ ношуд шуд",
-
     "purchaseDocumentSelector.code": "Код",
     "purchaseDocumentSelector.create": "Сохтан",
     "purchaseDocumentSelector.createDocument": "Сохтани ҳуҷҷат",
@@ -476,7 +468,6 @@
     "register.title": "Сохтани ҳисоб",
     "register.verificationCode": "Рамзи тасдиқ",
     "register.verificationCodePlaceholder": "Рамзро аз почтаи электронӣ ворид кунед",
-
     "resetPassword.changeEmail": "Почтаи электрониро иваз кунед",
     "resetPassword.changePassword": "Паролро иваз кунед",
     "resetPassword.changing": "Парол иваз карда мешавад...",
@@ -493,13 +484,11 @@
     "resetPassword.title": "Барқарор кардани парол",
     "resetPassword.verificationCode": "Рамзи тасдиқ",
     "resetPassword.verificationCodePlaceholder": "Рамзро аз почтаи электронӣ ворид кунед",
-
     "tableTabs.createNew": "Сохтани ҷадвали нав",
     "tableTabs.delete": "Нест кардан",
     "tableTabs.deleteConfirmMessage": "Ин амал ҷадвал ва ҳамаи сатрҳои онро ба таври доимӣ нест мекунад. Маълумот барқарор карда намешавад.",
     "tableTabs.deleteConfirmTitle": "Ҷадвал нест карда шавад?",
     "tableTabs.rename": "Тағйири ном",
-
     "unitSelector.loadError": "Боркунии воҳидҳо ноком шуд",
     "unitSelector.noUnitsAvailable": "Ҳеҷ воҳид дастрас нест",
     "unitSelector.noUnitsFound": "Ҳеҷ воҳид ёфт нашуд",
@@ -511,7 +500,6 @@
     "unitSelector.selectUnitDescription": "Воҳиди ченкуниро барои маҳсулот интихоб кунед",
     "unitSelector.unitsOfMeasurement": "Воҳидҳои ченкунӣ",
     "unitSelector.unitsRefreshed": "Воҳидҳо бомуваффақият навсозӣ шуданд",
-
     "docs.features.groups.groups.step1": "Маҳсулотро аз рӯи категорияҳо ташкил кунед",
     "docs.features.groups.groups.step2": "Барои идора кардани категорияҳо 'Гурӯҳҳои маҳсулот'-ро клик кунед",
     "docs.features.groups.groups.title": "Гурӯҳҳои маҳсулот:",
@@ -619,7 +607,26 @@
     "login.button.regos": "Воридшавӣ бо Regos",
     "productSearch.title": "Ҷустуҷӯи маҳсулот",
     "productSearch.startTyping": "Барои ҷустуҷӯ чоп карданро оғоз кунед",
-    "index.settings.useFuzzySearch": "Ҷустуҷӯи норавшанро истифода бурдан"
+    "index.settings.useFuzzySearch": "Ҷустуҷӯи норавшанро истифода бурдан",
+
+    "common.add": "Илова кардан",
+    "index.button.confirm": "Тасдиқ кардан",
+    "index.button.sum": "Маблағ",
+    "index.dialog.deleteRowDescription": "Оё шумо боварӣ доред, ки мехоҳед ин сатрро аз ҷадвал нест кунед?",
+    "index.dialog.deleteRowTitle": "Нест кардани сатр",
+    "index.dialog.unmatchDescription": "Оё шумо боварӣ доред, ки мехоҳед мутобиқати ин маҳсулотро бекор кунед?",
+    "index.dialog.unmatchTitle": "Бекор кардани мутобиқат",
+    "index.label.total": "Ҷамъ",
+    "index.search.placeholder": "Ҷустуҷӯ дар ҷадвал...",
+    "index.settings.defaultPriceType": "Намуди нархи пешфарз:",
+    "index.tooltip.calculateSum": "Ҳисоб кардани маблағ (нарх × миқдор)",
+    "index.tooltip.exportToExcel": "Содирот ба Excel",
+    "index.tooltip.unmatch": "Бекор кардани мутобиқат",
+    "productSearch.addProduct": "Иловаи маҳсулот",
+    "purchaseDocumentSelector.actions": "Амалҳо",
+    "purchaseDocumentSelector.documentsRefreshed": "Ҳуҷҷатҳо нав карда шуданд.",
+    "purchaseDocumentSelector.edit": "Таҳрир",
+    "purchaseDocumentSelector.perform": "Иҷро кардан"
   }
 }
 
